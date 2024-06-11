@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linkahead_python_package_template"
+description = "Enter a **short** description of your project here."
+version = "0.0.1"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+        {name = "Your Name", email="your@email.com"},
+        {name = "Your Friend", email= "friend@email.com"}
+]
+maintainers = [
+        {name = "Your Name", email="your@email.com"}
+]
+keywords = ["Data management", "Research data management"]
+classifiers = [
+            "Programming Language :: Python :: 3",
+            "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+            "Operating System :: OS Independent",
+]
+requires-python = ">= 3.8"
+dependencies = [
+             "linkahead"
+]
+
+[project.urls]
+Homepage = "https://getlinkahead.com"
+Documentation = "https://docs.indiscale.com"
+Repository = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-template"
+Issues = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-template/-/issues"
+Changelog = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-template/-/blob/main/CHANGELOG.md?ref_type=heads"
+
+[tool.setuptools.packages.find]
+where = "src"
+
