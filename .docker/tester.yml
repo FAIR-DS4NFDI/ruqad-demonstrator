@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  tester:
+    image: "$CI_REGISTRY_IMAGE"
+    networks:
+      - docker_caosnet
+    volumes:
+      - type: bind
+        source: ./cert
+        target: /cert
+      - type: volume
+        source: extroot
+        target: /extroot
+      - type: volume
+        source: scripting
+        target: /scripting
+      - type: volume
+        source: authtoken
+        target: /authtoken
+networks:
+  docker_caosnet:
+    external: true
+volumes:
+  scripting:
+  extroot:
+  authtoken:

@@ -46,3 +46,5 @@ For linting and code-style we additionally require
 For building the documentation we require
 
 - `sphinx`
+- `recommonmark` 
+- `sphinx-rtd-theme`

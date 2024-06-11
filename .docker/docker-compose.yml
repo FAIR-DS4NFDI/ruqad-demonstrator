@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+  sqldb:
+    image: mariadb:10.4
+    environment:
+      MYSQL_ROOT_PASSWORD: caosdb1234
+    networks:
+      - caosnet
+  caosdb-server:
+    image: "$CI_REGISTRY/caosdb/src/caosdb-deploy:$CAOSDB_TAG"
+    user: 999:999
+    depends_on:
+      - sqldb
+    networks:
+      - caosnet
+    volumes:
+      - type: bind
+        source: ./cert
+        target: /opt/caosdb/cert
+      - type: bind
+        source: "../integrationtests/test_data/extroot"
+        target: /opt/caosdb/mnt/extroot
+      - type: volume
+        source: scripting
+        target: /opt/caosdb/git/caosdb-server/scripting
+      - type: volume
+        source: authtoken
+        target: /opt/caosdb/git/caosdb-server/authtoken
+    ports:
+      # - "from_outside:from_inside"
+      - "10443:10443"
+      - "10080:10080"
+    environment:
+      DEBUG: 1
+      CAOSDB_CONFIG_AUTHTOKEN_CONFIG: "conf/core/authtoken.example.yaml"
+      CAOSDB_CONFIG_TRANSACTION_BENCHMARK_ENABLED: "TRUE"
+      CAOSDB_CONFIG__CAOSDB_INTEGRATION_TEST_SUITE_KEY: 10b128cf8a1372f30aa3697466bb55e76974e0c16a599bb44ace88f19c8f61e2
+volumes:
+  scripting:
+  authtoken:
+networks:
+  caosnet:
+    driver: bridge

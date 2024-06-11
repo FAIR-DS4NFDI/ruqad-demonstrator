@@ -1,0 +1,216 @@
+#
+# This file is a part of the CaosDB Project.
+#
+# Copyright (C) 2018 Research Group Biomedical Physics,
+# Max-Planck-Institute for Dynamics and Self-Organization Göttingen
+# Copyright (C) 2019 Henrik tom Wörden
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+variables:
+   CI_REGISTRY_IMAGE: $CI_REGISTRY/caosdb/src/linkahead-python-package-template/testenv:$CI_COMMIT_REF_NAME
+   CI_REGISTRY_IMAGE_BASE: $CI_REGISTRY/caosdb/src/caosdb-pyinttest/base:latest
+
+stages:
+  - info
+  - setup
+  - cert
+  - style
+  - test
+  - deploy
+
+.env: &env
+  - echo "Pipeline triggered by $TRIGGERED_BY_REPO@$TRIGGERED_BY_REF ($TRIGGERED_BY_HASH)"
+  - echo "CI_REGISTRY_IMAGE_BASE = $CI_REGISTRY_IMAGE_BASE"
+  - echo "CI_REGISTRY_IMAGE = $CI_REGISTRY_IMAGE"
+  - echo "CAOSDB_TAG = $CAOSDB_TAG"
+  - echo "REFTAG = $REFTAG"
+  - echo "F_BRANCH = $F_BRANCH"
+  - echo "CI_COMMIT_REF_NAME = $CI_COMMIT_REF_NAME"
+  - ls -lah /image-cache/
+
+  - F_BRANCH=${F_BRANCH:-$CI_COMMIT_REF_NAME}
+  - echo $F_BRANCH
+  - if [[ "$REFTAG" == "" ]] ; then
+      if [[ "$F_BRANCH" == "dev" ]] ; then
+        REFTAG=dev;
+      fi;
+    fi
+  - REFTAG=${REFTAG:-dev_F_${F_BRANCH}}
+
+  - echo $F_BRANCH
+
+  - if [[ "$CAOSDB_TAG" == "" ]]; then
+      CAOSDB_TAG=${REFTAG};
+    fi
+  - echo $CAOSDB_TAG
+
+info:
+  tags: [cached-dind]
+  image: docker:20.10
+  stage: info
+  needs: []
+  script:
+    - *env
+
+unittest_py3.11:
+  tags: [cached-dind]
+  stage: test
+  image: $CI_REGISTRY_IMAGE
+  script:
+    - python3 -c "import sys; assert sys.version.startswith('3.11')"
+    - tox
+
+unittest_py3.8:
+  tags: [cached-dind]
+  stage: test
+  image: python:3.8
+  script: &python_test_script
+    # install dependencies
+    - pip install pytest pytest-cov
+    - pip install .
+    # actual test
+    - pytest --cov=linkahead_python_package_template -vv ./unittests
+
+unittest_py3.9:
+  tags: [cached-dind]
+  stage: test
+  image: python:3.11
+  script: *python_test_script
+
+unittest_py3.10:
+  tags: [cached-dind]
+  stage: test
+  image: python:3.10
+  script: *python_test_script
+
+unittest_py3.12:
+  tags: [cached-dind]
+  stage: test
+  image: python:3.12
+  script: *python_test_script
+
+unittest_py3.13:
+  allow_failure: true
+  tags: [cached-dind]
+  stage: test
+  image: python:3.13-rc
+  script: *python_test_script
+
+build-testenv:
+  tags: [cached-dind]
+  image: docker:20.10
+  stage: setup
+  timeout: 2h
+  only:
+    - schedules
+    - web
+    - pushes
+  needs: []
+  script:
+      - df -h
+      - command -v wget
+      - if [ -z "$PYLIB" ]; then
+          if echo "$CI_COMMIT_REF_NAME" | grep -c "^f-" ; then
+            echo "Check if pylib has branch $CI_COMMIT_REF_NAME" ;
+            if wget https://gitlab.indiscale.com/api/v4/projects/97/repository/branches/${CI_COMMIT_REF_NAME} ; then
+              PYLIB=$CI_COMMIT_REF_NAME ;
+            fi;
+          fi;
+        fi;
+      - PYLIB=${PYLIB:-dev}
+      - echo $PYLIB
+
+      - if [ -z "$ADVANCED" ]; then
+          if echo "$CI_COMMIT_REF_NAME" | grep -c "^f-" ; then
+            echo "Check if advanced user tools have branch $CI_COMMIT_REF_NAME" ;
+            if wget https://gitlab.indiscale.com/api/v4/projects/104/repository/branches/${CI_COMMIT_REF_NAME} ; then
+              ADVANCED=$CI_COMMIT_REF_NAME ;
+            fi;
+          fi;
+        fi;
+      - ADVANCED=${ADVANCED:-dev}
+      - echo $ADVANCED
+
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        # use here general latest or specific branch latest...
+      - docker build
+        --build-arg PYLIB=${PYLIB}
+        --build-arg ADVANCED=${ADVANCED:dev}
+        --file .docker/Dockerfile
+        -t $CI_REGISTRY_IMAGE .
+      - docker push $CI_REGISTRY_IMAGE
+      - docker save $CI_REGISTRY_IMAGE > /image-cache/linkahead-python-package-template-testenv-${CI_COMMIT_REF_NAME}.tar
+
+cert:
+  tags: [docker]
+  stage: cert
+  image: $CI_REGISTRY_IMAGE
+  needs:
+    - job: build-testenv
+      optional: true
+  artifacts:
+    paths:
+      - .docker/cert/
+    expire_in: 1 week
+  script:
+      - cd .docker
+      - CAOSHOSTNAME=caosdb-server ./cert.sh
+
+code-style:
+  tags: [docker]
+  stage: style
+  image: $CI_REGISTRY_IMAGE
+  needs:
+    - job: build-testenv
+      optional: true
+  script:
+      - autopep8 -r --diff --exit-code .
+  allow_failure: true
+
+pylint:
+  tags: [docker]
+  stage: style
+  image: $CI_REGISTRY_IMAGE
+  needs:
+    - job: build-testenv
+      optional: true
+  allow_failure: true
+  script:
+    - pylint --unsafe-load-any-extension=y -d all -e E,F src/linkahead_python_package_template
+
+# Build the sphinx documentation and make it ready for deployment by Gitlab Pages
+# Special job for serving a static website. See https://docs.gitlab.com/ee/ci/yaml/README.html#pages
+# Based on: https://gitlab.indiscale.com/caosdb/src/caosdb-pylib/-/ci/editor?branch_name=main
+pages_prepare: &pages_prepare
+  tags: [ cached-dind ]
+  stage: deploy
+  needs:
+    - job: build-testenv
+  image: $CI_REGISTRY_IMAGE
+  only:
+    refs:
+      - /^release-.*$/i
+  script:
+    - echo "Deploying documentation"
+    - make doc
+    - cp -r build/doc/html public
+  artifacts:
+    paths:
+      - public
+pages:
+  <<: *pages_prepare
+  only:
+    refs:
+      - main
