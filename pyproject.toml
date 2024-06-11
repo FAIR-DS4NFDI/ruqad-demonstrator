@@ -33,6 +33,3 @@ Repository = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-t
 Issues = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-template/-/issues"
 Changelog = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-template/-/blob/main/CHANGELOG.md?ref_type=heads"
 
-[tool.setuptools.packages.find]
-where = "src"
-
