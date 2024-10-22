@@ -1,4 +1,4 @@
-# Release Guidelines for the CaosDB Python Client Library
+# Release Guidelines for the FAIR Dataspace RuQaD
 
 This document specifies release guidelines in addition to the general release
 guidelines of the CaosDB Project

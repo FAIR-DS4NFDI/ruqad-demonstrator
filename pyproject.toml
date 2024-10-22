@@ -3,17 +3,17 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "linkahead_python_package_template"
-description = "Enter a **short** description of your project here."
+name = "fair-dataspaces-ruqad"
+description = "A tool for quality assured data integration from Kadi to LinkAhead."
 version = "0.0.1"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-        {name = "Your Name", email="your@email.com"},
-        {name = "Your Friend", email= "friend@email.com"}
+        {name = "Henrik tom Wörden", email="h.tomwoerden@indiscale.com"},
+        {name = "Timm Fitschen", email= "t.fitschen@indiscale.com"}
 ]
 maintainers = [
-        {name = "Your Name", email="your@email.com"}
+        {name = "Henrik tom Wörden", email="h.tomwoerden@indiscale.com"}
 ]
 keywords = ["Data management", "Research data management"]
 classifiers = [

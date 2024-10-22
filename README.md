@@ -1,26 +1,10 @@
-# LinkAhead Python Package Template
+# FAIR Dataspaces RuQaD
 
-This Repo serves as a template for LinkAhead related Python packages, e.g.,
-custom crawler converters.
+TODO
 
 ## Usage
 
-To create a new Python package, fork this repo and change the names in the `src`
-directory, `pyproject.toml`, `Makefile`, `src/doc/Makefile`, `src/doc/conf.py`
-and `tox.ini`. Also edit the `authors` field therein. If applicable, create a
-`citation.cff` for the new project.
-
-Also update this `README.md` to contain actual package information including
-license, copyright, conttributors, etc. See [Pylib's
-README.md](https://gitlab.com/linkahead/linkahead-pylib/-/blob/main/README.md?ref_type=heads)
-as an example.
-
-Then, write your Python code in `/src/<package_name>`, and add unit tests in
-`unittests`. Documentation goes to `/src/doc`.
-
-If you want to publish the result on PyPi, there is a release.sh helper
-script. Make sure that your `pyproject.toml` contains the correct and complete
-metadata and check the `RELEASE_GUIDELINES.md`
+TODO
 
 ### Unit Tests
 
