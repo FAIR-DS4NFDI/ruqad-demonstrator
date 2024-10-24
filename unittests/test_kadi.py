@@ -38,8 +38,8 @@ def mock_generator(manager):
 
 @patch("ruqad.kadi._generate_pages", new=Mock(side_effect=mock_generator))
 def test_collect_records_created_after():
-    # we set a cut of date after half of the records and check that we get the correct ids
+    # we set a cut-off date after half of the records and check that we get the correct ids
     assert [1,2]==kadi.collect_records_created_after(manager=None,
-                                       cut_of_date= datetime.fromisoformat(
+                                       cut_off_date= datetime.fromisoformat(
                                             "2024-01-01 03:00:00.000000+00:00")
                                        )
