@@ -17,6 +17,7 @@ from ruqad import kadi
 from datetime import datetime
 from unittest.mock import patch, Mock
 
+
 def mock_generator(manager):
     """ Mocks the server response. We only need the keys: "items", "created_at", and "id"."""
     pages = [
@@ -25,7 +26,7 @@ def mock_generator(manager):
              "id": 1},
             {"created_at": "2024-01-02 01:00:00.000000+00:00",
              "id": 2}
-        ]},{"items": [
+        ]}, {"items": [
             {"created_at": "2024-01-01 01:00:00.000000+00:00",
              "id": 3},
             {"created_at": "2024-01-01 01:00:00.000000+00:00",
@@ -39,7 +40,7 @@ def mock_generator(manager):
 @patch("ruqad.kadi._generate_pages", new=Mock(side_effect=mock_generator))
 def test_collect_records_created_after():
     # we set a cut-off date after half of the records and check that we get the correct ids
-    assert [1,2]==kadi.collect_records_created_after(manager=None,
-                                       cut_off_date= datetime.fromisoformat(
-                                            "2024-01-01 03:00:00.000000+00:00")
-                                       )
+    assert [1, 2] == kadi.collect_records_created_after(manager=None,
+                                                        cut_off_date=datetime.fromisoformat(
+                                                            "2024-01-01 03:00:00.000000+00:00")
+                                                        )

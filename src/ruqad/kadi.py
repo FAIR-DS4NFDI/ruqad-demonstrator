@@ -23,7 +23,8 @@ from datetime import datetime
 
 PAGE_SIZE = 100
 
-def _generate_pages(manager)->dict:
+
+def _generate_pages(manager) -> dict:
     """
     Generates JSON responses (dict) that represent single pages returned by the Kadi API
 
@@ -35,16 +36,16 @@ def _generate_pages(manager)->dict:
     -------
         dict, the JSON response as dict
     """
-    query_params = {"per_page":PAGE_SIZE, "sort": "-created_at"}
+    query_params = {"per_page": PAGE_SIZE, "sort": "-created_at"}
     # test search to get number of pages.
     response = manager.search.search_resources("record", **query_params).json()
     n_pages = response["_pagination"]["total_pages"]
     for ii in range(n_pages):
-        query_params.update({"page":ii+1})
+        query_params.update({"page": ii+1})
         yield manager.search.search_resources("record", **query_params).json()
 
 
-def collect_records_created_after(manager: KadiManager, cut_off_date: datetime.datetime)->list(int):
+def collect_records_created_after(manager: KadiManager, cut_off_date: datetime.datetime) -> list(int):
     """
     Iterates page-wise over the responses of the Kadi API until records are reached that are older
     than the given cut_off_date.
@@ -71,6 +72,7 @@ def collect_records_created_after(manager: KadiManager, cut_off_date: datetime.d
             break
     return record_ids
 
+
 def download_eln_for(manager: KadiManager, rid: int, path: str) -> None:
     """
     Downloads the record with the given ID as '.eln' file and stores it in the given path.
@@ -84,9 +86,11 @@ def download_eln_for(manager: KadiManager, rid: int, path: str) -> None:
     rec = manager.record(id=rid)
     rec.export(path=path, export_type='ro-crate')
 
+
 def main():
     with KadiManager(instance='demo') as manager:
-        cut_off_date = datetime.fromisoformat("2024-10-01 02:34:42.484312+00:00")
+        cut_off_date = datetime.fromisoformat(
+            "2024-10-01 02:34:42.484312+00:00")
         rec_ids = collect_records_created_after(manager, cut_off_date)
         print(rec_ids)
 

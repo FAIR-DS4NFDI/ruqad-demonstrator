@@ -30,21 +30,24 @@ KADIARGS = {
     "pat": os.environ['KADITOKEN']
 }
 
+
 def test_collect():
     """
     queries data from the Kadi demo instance and checks whether the cut-off date is used correctly
     """
     with KadiManager(**KADIARGS) as manager:
-        cut_off_date = datetime.fromisoformat("2024-10-01 02:34:42.484312+00:00")
+        cut_off_date = datetime.fromisoformat(
+            "2024-10-01 02:34:42.484312+00:00")
         rec_ids = collect_records_created_after(manager, cut_off_date)
-        assert (rec_ids ==[664, 656, 641, 640, 639, 638, 637],
+        assert (rec_ids == [664, 656, 641, 640, 639, 638, 637],
                 "when the sample data changes, this test may fail")
+
 
 def test_download():
     """ downloads a record from the demo instance and checks that the download occurred correctly"""
-    temp  = NamedTemporaryFile(delete=False)
+    temp = NamedTemporaryFile(delete=False)
     temp.close()
     with KadiManager(**KADIARGS) as manager:
         download_eln_for(manager, 664, temp.name)
-    assert os.path.getsize(temp.name)>0
+    assert os.path.getsize(temp.name) > 0
     assert zipfile.is_zipfile(temp.name)
