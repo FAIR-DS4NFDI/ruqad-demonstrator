@@ -1,4 +1,4 @@
-LinkkAhead Python Package Template
+LinkAhead Python Package Template
 ==================================
 
 **TODO**: Write your documentation here.
