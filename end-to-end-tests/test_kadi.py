@@ -39,8 +39,12 @@ def test_collect():
         cut_off_date = datetime.fromisoformat(
             "2024-10-01 02:34:42.484312+00:00")
         rec_ids = collect_records_created_after(manager, cut_off_date)
-        assert (rec_ids == [664, 656, 641, 640, 639, 638, 637],
-                "when the sample data changes, this test may fail")
+        known_new_recs = [664, 656, 641, 640, 639, 638, 637]
+        for knr in known_new_recs:
+            assert knr in rec_ids, "when the sample data changes, this test may fail"
+        known_old_recs = [158,636, 1]
+        for knr in known_old_recs:
+            assert knr not in rec_ids, "when the sample data changes, this test may fail"
 
 
 def test_download():
