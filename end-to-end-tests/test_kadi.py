@@ -21,9 +21,11 @@ import os
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 import zipfile
+from uuid import uuid1
 
 from ruqad.kadi import collect_records_created_after, download_eln_for
 from kadi_apy import KadiManager
+from time import sleep
 
 KADIARGS = {
     "host": "https://demo-kadi4mat.iam.kit.edu",
@@ -35,16 +37,22 @@ def test_collect():
     """
     queries data from the Kadi demo instance and checks whether the cut-off date is used correctly
     """
+    new1, new2, newest = None, None, None
     with KadiManager(**KADIARGS) as manager:
-        cut_off_date = datetime.fromisoformat(
-            "2024-10-01 02:34:42.484312+00:00")
+        query_params = {"per_page": 1, "sort": "-created_at"}
+        newest = manager.search.search_resources("record", **query_params).json()["items"][0]
+        cut_off_date = datetime.fromisoformat(newest["created_at"])
+        new1=manager.record(identifier=str(uuid1()), create=True)
+        new2=manager.record(identifier=str(uuid1()), create=True)
+    sleep(15)
+    with KadiManager(**KADIARGS) as manager:
         rec_ids = collect_records_created_after(manager, cut_off_date)
-        known_new_recs = [664, 656, 641, 640, 639, 638, 637]
+        known_new_recs = [int(newest["id"]), new1.id, new2.id]
         for knr in known_new_recs:
-            assert knr in rec_ids, "when the sample data changes, this test may fail"
-        known_old_recs = [158,636, 1]
+            assert knr in rec_ids
+        known_old_recs = [158,newest["id"]-1, 1]
         for knr in known_old_recs:
-            assert knr not in rec_ids, "when the sample data changes, this test may fail"
+            assert knr not in rec_ids
 
 
 def test_download():

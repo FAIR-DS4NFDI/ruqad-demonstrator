@@ -39,6 +39,9 @@ def _generate_pages(manager) -> dict:
     query_params = {"per_page": PAGE_SIZE, "sort": "-created_at"}
     # test search to get number of pages.
     response = manager.search.search_resources("record", **query_params).json()
+    if 'code' in response and response['code']!=200:
+        raise RuntimeError("Could not search Kadi. Connection returned code:"
+                           +str(response['code']))
     n_pages = response["_pagination"]["total_pages"]
     for ii in range(n_pages):
         query_params.update({"page": ii+1})
