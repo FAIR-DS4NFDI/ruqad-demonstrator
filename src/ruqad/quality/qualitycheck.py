@@ -29,6 +29,7 @@ import os
 import time
 from subprocess import run
 
+import boto3
 import toml
 
 
@@ -62,13 +63,22 @@ class QualityChecker:
     def __init__(self):
         """The QualityChecker can do quality checks for content.
         """
+        self._bucketname = "testbucket"
         self._secrets = read_secrets()
+        session = boto3.Session(aws_access_key_id=self._secrets["s3_access_key"],
+                                aws_secret_access_key=self._secrets["s3_secret_key"])
+        # FIXME no SSL during testing!
+        self._s3_client = session.client("s3", endpoint_url="http://localhost:9000")
 
-    def check(self, target_dir: str = ".") -> bool:
+    def check(self, filename: str, target_dir: str = ".") -> bool:
         """Check for data quality.
 
 Parameters
 ----------
+
+filename : str
+  The file to be checked.
+
 target_dir : str, default="."
   Download to this directory.
 
@@ -77,6 +87,11 @@ Returns
 out : bool
   True if the checks passed, false otherwise.
         """
+        # Prepare check
+        self._upload(filename)
+
+        # Actual check
+        check_ok = True
         try:
             pipeline_id = self._trigger_check()
             job_id = self._wait_for_check(pipeline_id=pipeline_id)
@@ -86,8 +101,34 @@ out : bool
             from IPython import embed
             embed()
 
-            return False
-        return True
+            check_ok = False
+
+        # Cleanup
+        self._cleanup()
+
+        return check_ok
+
+    def _cleanup(self):
+        """Clean up the S3 bucket.
+
+This deletes all the objects in the bucket.
+        """
+        objects = self._s3_client.list_objects_v2(Bucket=self._bucketname).get("Contents")
+        if objects is None:
+            # nothing to delete
+            return
+        for obj in objects:
+            self._s3_client.delete_object(Bucket=self._bucketname, Key=obj["Key"])
+
+    def _upload(self, filename: str):
+        """Upload the file to the S3 bucket.
+
+Parameters
+----------
+filename : str
+  The file to be checked.
+        """
+        self._s3_client.upload_file(filename, self._bucketname, filename)
 
     def _trigger_check(self) -> str:
         """Trigger a new pipeline to start quality checks.
@@ -184,11 +225,10 @@ out : bool
 def _parse_arguments():
     """Parse the arguments."""
     parser = argparse.ArgumentParser(description='Trigger quality checks for the given content')
-    input_group = parser.add_mutually_exclusive_group()
-    input_group.add_argument('-f', '--file',
-                             help=("Check the quality for this file.  Mutually exclusive with "
-                                   "'--s3'."),
-                             )
+    parser.add_argument('-f', '--file', required=True,
+                        help=("Check the quality for this file."),
+                        )
+    # FIXME needs both file and schema.
 
     return parser.parse_args()
 
@@ -196,10 +236,8 @@ def _parse_arguments():
 def main():
     """The main function of this script."""
     args = _parse_arguments()
-    if args.file is not None:
-        raise NotImplementedError("Custom files are not supported yet.")
     qc = QualityChecker()
-    qc.check()
+    qc.check(filename=args.file)
 
 
 if __name__ == "__main__":
