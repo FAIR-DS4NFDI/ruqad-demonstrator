@@ -1,0 +1,2 @@
+s3_endpoint = "http://localhost:9000"
+s3_bucket = "ruqad"

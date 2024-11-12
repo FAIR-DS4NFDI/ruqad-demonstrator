@@ -33,26 +33,26 @@ import boto3
 import toml
 
 
-def read_secrets() -> dict:
-    """Read secrets from ``./qualitycheck_secrets.toml``.
+def read_config() -> dict:
+    """Read config from ``./qualitycheck_config.toml``.
 
 This config file must define the following:
 
-- ``pipeline_token``: To trigger a pipeline.
-- ``api_token``: Project access token to access pipeline information.
+- ``s3_endpoint``: S3 endpoint to connect to.
+- ``s3_bucket``: Bucket in the S3 Service.
 
 Returns
 -------
 out: dict
-  The secrets.
+  The config.
     """
-    secrets = toml.load("./qualitycheck_secrets.toml")
-    assert "pipeline_token" in secrets
-    assert isinstance(secrets["pipeline_token"], str)
-    assert "api_token" in secrets
-    assert isinstance(secrets["api_token"], str)
+    config = toml.load("./qualitycheck_config.toml")
+    assert "s3_endpoint" in config
+    assert isinstance(config["s3_endpoint"], str)
+    assert "s3_bucket" in config
+    assert isinstance(config["s3_bucket"], str)
 
-    return secrets
+    return config
 
 
 class QualityChecker:
@@ -63,12 +63,33 @@ class QualityChecker:
     def __init__(self):
         """The QualityChecker can do quality checks for content.
         """
-        self._bucketname = "testbucket"
-        self._secrets = read_secrets()
-        session = boto3.Session(aws_access_key_id=self._secrets["s3_access_key"],
-                                aws_secret_access_key=self._secrets["s3_secret_key"])
+        if "ACCESS_KEY_ID" in os.environ:
+            access_key_id = os.environ['ACCESS_KEY_ID']
+        else:
+            raise RuntimeError("The following environment variable is missing: ACCESS_KEY_ID")
+
+        if "SECRET_ACCESS_KEY" in os.environ:
+            secret_access_key = os.environ['SECRET_ACCESS_KEY']
+        else:
+            raise RuntimeError("The following environment variable is missing: SECRET_ACCESS_KEY")
+
+        if "GITLAB_PL_TOKEN" in os.environ:
+            self._pl_token = os.environ['GITLAB_PL_TOKEN']
+        else:
+            raise RuntimeError("The following environment variable is missing: GITLAB_PL_TOKEN")
+
+        if "GITLAB_PA_TOKEN" in os.environ:
+            self._pa_token = os.environ['GITLAB_PA_TOKEN']
+        else:
+            raise RuntimeError("The following environment variable is missing: GITLAB_PA_TOKEN")
+
+        self._config = read_config()
+        self._bucketname = self._config["s3_bucket"]
+
+        session = boto3.Session(aws_access_key_id=access_key_id,
+                                aws_secret_access_key=secret_access_key)
         # FIXME no SSL during testing!
-        self._s3_client = session.client("s3", endpoint_url=self._secrets["s3_endpoint_url"])
+        self._s3_client = session.client("s3", endpoint_url=self._config["s3_endpoint"])
 
     def check(self, filename: str, target_dir: str = ".") -> bool:
         """Check for data quality.
@@ -128,15 +149,11 @@ Parameters
 filename : str
   The file to be checked.
         """
+        print(filename, self._bucketname, filename)
         self._s3_client.upload_file(filename, self._bucketname, filename)
 
     def _trigger_check(self) -> str:
         """Trigger a new pipeline to start quality checks.
-
-    Parameters
-    ----------
-    pipeline_token : str
-        The token to trigger the pipeline.
 
     Returns
     -------
@@ -147,7 +164,7 @@ filename : str
         cmd = ["curl",
                "-X", "POST",
                "--fail",
-               "-F", f"token={self._secrets['pipeline_token']}",
+               "-F", f"token={self._pl_token}",
                "-F", "ref=main",
                "https://gitlab.indiscale.com/api/v4/projects/268/trigger/pipeline"
                ]
@@ -171,7 +188,7 @@ filename : str
         # Wait for pipeline to finish.
         cmd = [
             "curl",
-            "--header", f"PRIVATE-TOKEN: {self._secrets['api_token']}",
+            "--header", f"PRIVATE-TOKEN: {self._pa_token}",
             f"https://gitlab.indiscale.com/api/v4/projects/268/pipelines/{pipeline_id}"
         ]
         while True:
@@ -187,7 +204,7 @@ filename : str
         # Get jobs.
         cmd = [
             "curl",
-            "--header", f"PRIVATE-TOKEN: {self._secrets['api_token']}",
+            "--header", f"PRIVATE-TOKEN: {self._pa_token}",
             f"https://gitlab.indiscale.com/api/v4/projects/268/pipelines/{pipeline_id}/jobs"
         ]
         cmd_result = run(cmd, check=False, capture_output=True)
@@ -214,7 +231,7 @@ filename : str
             "curl",
             "--location", "--fail",
             "--output", target,
-            "--header", f"PRIVATE-TOKEN: {self._secrets['api_token']}",
+            "--header", f"PRIVATE-TOKEN: {self._pa_token}",
             f"https://gitlab.indiscale.com/api/v4/projects/268/jobs/{job_id}/artifacts"
         ]
         cmd_result = run(cmd, check=False, capture_output=True)
