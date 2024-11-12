@@ -143,7 +143,6 @@ Parameters
 filename : str
   The file to be checked.
         """
-        print(filename, self._bucketname, filename)
         self._s3_client.upload_file(filename, self._bucketname, filename)
 
     def _trigger_check(self) -> str:

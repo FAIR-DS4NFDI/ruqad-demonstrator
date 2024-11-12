@@ -10,7 +10,7 @@ from time import sleep
 from kadi_apy import KadiManager
 
 from .kadi import collect_records_created_after, download_eln_for
-from .quality.qualitycheck import QualityChecker
+from .qualitycheck import QualityChecker
 
 KADIARGS = {
     "host": os.environ['KADIHOST'],
