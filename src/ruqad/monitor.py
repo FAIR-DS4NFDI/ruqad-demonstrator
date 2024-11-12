@@ -2,14 +2,15 @@
 monitor the kadi instance
 """
 import os
-from time import sleep
-from tempfile import NamedTemporaryFile
 import traceback
 from datetime import datetime, timezone
+from tempfile import TemporaryDirectory
+from time import sleep
+
 from kadi_apy import KadiManager
 
 from .kadi import collect_records_created_after, download_eln_for
-
+from .quality.qualitycheck import QualityChecker
 
 KADIARGS = {
     "host": os.environ['KADIHOST'],
@@ -23,6 +24,7 @@ if __name__ == "__main__":
         try:
             timestamp = datetime.now(timezone.utc)
             with KadiManager(**KADIARGS) as manager:
+                qc = QualityChecker()
                 print(f"Checking for records created after {cut_off_date}...")
                 rec_ids = collect_records_created_after(manager, cut_off_date)
                 cut_off_date = timestamp
@@ -33,11 +35,13 @@ if __name__ == "__main__":
                 if len(rec_ids) == 0:
                     print("no new recs")
                 for rid in rec_ids:
-                    temp = NamedTemporaryFile(delete=False)
-                    temp.close()
-                    download_eln_for(manager, rid, path=temp.name)
-                    print(temp.name)
-            sleep(5)
+                    with TemporaryDirectory() as cdir:
+                        eln_file = os.path.join(cdir, "export.eln")
+                        download_eln_for(manager, rid, path=eln_file)
+                        print(f"Downlaoded {eln_file}")
+                        qc.check(filename=eln_file, target_dir=cdir)
+                        print(f"Quality check done. {os.listdir(cdir)}")
+            sleep(60)
 
         except KeyboardInterrupt as e:
             raise e
