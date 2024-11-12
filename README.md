@@ -8,7 +8,12 @@ TODO
 
 ### Unit Tests
 
-Run `tox` or alternatively `pytest unittests/`.
+Run `pytest unittests/`.
+
+### E2E Tests
+In order to run the E2E test, you need to create a personal access token (pat) in the public 
+[demo instance](https://demo-kadi4mat.iam.kit.edu). You can then run the test as follows:
+`KADITOKEN=<token> python -m pytest end-to-end-tests/test_kadi.py`
 
 ### Code style and liniting
 
