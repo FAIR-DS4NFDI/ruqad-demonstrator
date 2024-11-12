@@ -134,5 +134,5 @@ pylint:
       optional: true
   allow_failure: true
   script:
-    - pylint --unsafe-load-any-extension=y -d all -e E,F src/linkahead_python_package_template
+    - pylint --unsafe-load-any-extension=y -d all -e E,F src/ruqad
 
