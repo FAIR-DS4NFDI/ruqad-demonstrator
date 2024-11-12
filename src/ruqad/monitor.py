@@ -21,21 +21,21 @@ if __name__ == "__main__":
     cut_off_date = datetime.fromisoformat("1990-01-01 02:34:42.484312+00:00")
     while True:
         try:
-            timestamp  = datetime.now(timezone.utc)
+            timestamp = datetime.now(timezone.utc)
             with KadiManager(**KADIARGS) as manager:
                 print(f"Checking for records created after {cut_off_date}...")
                 rec_ids = collect_records_created_after(manager, cut_off_date)
                 cut_off_date = timestamp
 
-                if len(rec_ids)>5:
+                if len(rec_ids) > 5:
                     print("skipping, too many recs: ", len(rec_ids))
                     continue
-                if len(rec_ids)==0:
+                if len(rec_ids) == 0:
                     print("no new recs")
                 for rid in rec_ids:
                     temp = NamedTemporaryFile(delete=False)
                     temp.close()
-                    download_eln_for(manager, rid, path= temp.name)
+                    download_eln_for(manager, rid, path=temp.name)
                     print(temp.name)
             sleep(5)
 
