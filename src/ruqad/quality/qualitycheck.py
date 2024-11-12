@@ -63,32 +63,26 @@ class QualityChecker:
     def __init__(self):
         """The QualityChecker can do quality checks for content.
         """
-        if "ACCESS_KEY_ID" in os.environ:
-            access_key_id = os.environ['ACCESS_KEY_ID']
-        else:
-            raise RuntimeError("The following environment variable is missing: ACCESS_KEY_ID")
-
-        if "SECRET_ACCESS_KEY" in os.environ:
-            secret_access_key = os.environ['SECRET_ACCESS_KEY']
-        else:
-            raise RuntimeError("The following environment variable is missing: SECRET_ACCESS_KEY")
-
-        if "GITLAB_PL_TOKEN" in os.environ:
-            self._pl_token = os.environ['GITLAB_PL_TOKEN']
-        else:
-            raise RuntimeError("The following environment variable is missing: GITLAB_PL_TOKEN")
-
-        if "GITLAB_PA_TOKEN" in os.environ:
-            self._pa_token = os.environ['GITLAB_PA_TOKEN']
-        else:
-            raise RuntimeError("The following environment variable is missing: GITLAB_PA_TOKEN")
-
         self._config = read_config()
-        self._bucketname = self._config["s3_bucket"]
+        secret_vars = [
+            "S3_ACCESS_KEY_ID",
+            "S3_SECRET_ACCESS_KEY",
+            "GITLAB_PIPELINE_TOKEN",
+            "GITLAB_API_TOKEN",
+        ]
+        missing = False
+        for varname in secret_vars:
+            try:
+                self._config[varname.lower()] = os.environ[varname]
+            except KeyError:
+                print(f"This environment variable is missing: {varname}")
+                missing = True
+        if missing:
+            raise RuntimeError("Missing environment variables.")
 
-        session = boto3.Session(aws_access_key_id=access_key_id,
-                                aws_secret_access_key=secret_access_key)
-        # FIXME no SSL during testing!
+        self._bucketname = self._config["s3_bucket"]
+        session = boto3.Session(aws_access_key_id=self._config["s3_access_key_id"],
+                                aws_secret_access_key=self._config["s3_secret_access_key"])
         self._s3_client = session.client("s3", endpoint_url=self._config["s3_endpoint"])
 
     def check(self, filename: str, target_dir: str = ".") -> bool:
@@ -164,7 +158,7 @@ filename : str
         cmd = ["curl",
                "-X", "POST",
                "--fail",
-               "-F", f"token={self._pl_token}",
+               "-F", f"token={self._config['gitlab_pipeline_token']}",
                "-F", "ref=main",
                "https://gitlab.indiscale.com/api/v4/projects/268/trigger/pipeline"
                ]
@@ -188,7 +182,7 @@ filename : str
         # Wait for pipeline to finish.
         cmd = [
             "curl",
-            "--header", f"PRIVATE-TOKEN: {self._pa_token}",
+            "--header", f"PRIVATE-TOKEN: {self._config['gitlab_api_token']}",
             f"https://gitlab.indiscale.com/api/v4/projects/268/pipelines/{pipeline_id}"
         ]
         while True:
@@ -204,7 +198,7 @@ filename : str
         # Get jobs.
         cmd = [
             "curl",
-            "--header", f"PRIVATE-TOKEN: {self._pa_token}",
+            "--header", f"PRIVATE-TOKEN: {self._config['gitlab_api_token']}",
             f"https://gitlab.indiscale.com/api/v4/projects/268/pipelines/{pipeline_id}/jobs"
         ]
         cmd_result = run(cmd, check=False, capture_output=True)
@@ -231,7 +225,7 @@ filename : str
             "curl",
             "--location", "--fail",
             "--output", target,
-            "--header", f"PRIVATE-TOKEN: {self._pa_token}",
+            "--header", f"PRIVATE-TOKEN: {self._config['gitlab_api_token']}",
             f"https://gitlab.indiscale.com/api/v4/projects/268/jobs/{job_id}/artifacts"
         ]
         cmd_result = run(cmd, check=False, capture_output=True)

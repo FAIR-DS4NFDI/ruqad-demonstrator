@@ -1,9 +1,19 @@
+# -*- mode:conf; -*-
+
+# auto saves, caches
 *~
-.coverage
 __pycache__
+.coverage
 .tox
-*.egg-info
+
+# development artifacts
 venv/
-build
 /.env/
+
+# configurations
+qualitycheck_config.toml
+
+# build artifacts
+*.egg-info
+build
 /src/doc/_apidoc/
