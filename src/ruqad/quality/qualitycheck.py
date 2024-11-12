@@ -68,7 +68,7 @@ class QualityChecker:
         session = boto3.Session(aws_access_key_id=self._secrets["s3_access_key"],
                                 aws_secret_access_key=self._secrets["s3_secret_key"])
         # FIXME no SSL during testing!
-        self._s3_client = session.client("s3", endpoint_url="http://localhost:9000")
+        self._s3_client = session.client("s3", endpoint_url=self._secrets["s3_endpoint_url"])
 
     def check(self, filename: str, target_dir: str = ".") -> bool:
         """Check for data quality.
