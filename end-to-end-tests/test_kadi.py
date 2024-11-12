@@ -42,15 +42,15 @@ def test_collect():
         query_params = {"per_page": 1, "sort": "-created_at"}
         newest = manager.search.search_resources("record", **query_params).json()["items"][0]
         cut_off_date = datetime.fromisoformat(newest["created_at"])
-        new1=manager.record(identifier=str(uuid1()), create=True)
-        new2=manager.record(identifier=str(uuid1()), create=True)
+        new1 = manager.record(identifier=str(uuid1()), create=True)
+        new2 = manager.record(identifier=str(uuid1()), create=True)
     sleep(15)
     with KadiManager(**KADIARGS) as manager:
         rec_ids = collect_records_created_after(manager, cut_off_date)
         known_new_recs = [int(newest["id"]), new1.id, new2.id]
         for knr in known_new_recs:
             assert knr in rec_ids
-        known_old_recs = [158,newest["id"]-1, 1]
+        known_old_recs = [158, newest["id"]-1, 1]
         for knr in known_old_recs:
             assert knr not in rec_ids
 
