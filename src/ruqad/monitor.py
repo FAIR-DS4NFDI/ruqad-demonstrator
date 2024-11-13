@@ -2,6 +2,7 @@
 monitor the kadi instance
 """
 import os
+import shutil
 import traceback
 from datetime import datetime, timezone
 from tempfile import TemporaryDirectory
@@ -9,6 +10,7 @@ from time import sleep
 
 from kadi_apy import KadiManager
 
+from .crawler import trigger_crawler
 from .kadi import collect_records_created_after, download_eln_for
 from .qualitycheck import QualityChecker
 
@@ -42,7 +44,12 @@ if __name__ == "__main__":
                         qc.check(filename=eln_file, target_dir=cdir)
                         print(f"Quality check done. {os.listdir(cdir)}")
                         # trigger crawler on dir
-                        remote_dir_path= os.path.join("ruqad", str(rid))
+                        remote_dir_path= os.path.join(cdir, "ruqad", str(rid))
+                        os.makedirs(remote_dir_path)
+                        shutil.move(os.path.join(cdir, "archive.zip"),
+                                    os.path.join(remote_dir_path, "quality_report.zip"))
+                        shutil.move(os.path.join(cdir, "export.eln"),
+                                    os.path.join(remote_dir_path, "export.eln"))
                         trigger_crawler(target_dir=cdir)
             sleep(60)
 

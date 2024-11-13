@@ -24,6 +24,7 @@ classifiers = [
 requires-python = ">= 3.8"
 dependencies = [
              "linkahead",
+             "caoscrawler[rocrate]",
              "kadi-apy"
 
 ]
@@ -41,3 +42,6 @@ dev = [
 test = [
     "pytest",
 ]
+
+[tool.setuptools.package-data]
+ruqad = ["src/ruqad/resources/crawler-settings"]
