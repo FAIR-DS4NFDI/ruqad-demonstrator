@@ -41,6 +41,9 @@ if __name__ == "__main__":
                         print(f"Downlaoded {eln_file}")
                         qc.check(filename=eln_file, target_dir=cdir)
                         print(f"Quality check done. {os.listdir(cdir)}")
+                        # trigger crawler on dir
+                        remote_dir_path= os.path.join("ruqad", str(rid))
+                        trigger_crawler(target_dir=cdir)
             sleep(60)
 
         except KeyboardInterrupt as e:
