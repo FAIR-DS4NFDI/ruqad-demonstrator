@@ -47,7 +47,7 @@ if __name__ == "__main__":
                         remote_dir_path= os.path.join(cdir, "ruqad", str(rid))
                         os.makedirs(remote_dir_path)
                         shutil.move(os.path.join(cdir, "artifacts.zip"),
-                                    os.path.join(remote_dir_path, "quality_report.zip"))
+                                    os.path.join(remote_dir_path, "report.zip"))
                         shutil.move(os.path.join(cdir, "export.eln"),
                                     os.path.join(remote_dir_path, "export.eln"))
                         trigger_crawler(target_dir=cdir)
