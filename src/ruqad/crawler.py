@@ -3,6 +3,7 @@
 # A. Schlemmer, 11/2024
 
 
+import os
 from importlib import resources
 from os import walk
 from os.path import join, sep
@@ -22,6 +23,7 @@ def trigger_crawler(target_dir: str):
     caosdb-crawler -i crawler/identifiables.yaml -s update crawler/cfood.yaml <target_dir>
     ```
     """
+    target_dir = os.path.relpath(target_dir)
 
     # insert all .zip and .eln files, if they do not yet exist
     for fp, ds, fs in walk(target_dir):
@@ -42,4 +44,4 @@ def trigger_crawler(target_dir: str):
     crawler_main(crawled_directory_path=target_dir,
                  cfood_file_name=ruqad_crawler_settings.joinpath('cfood.yaml'),
                  identifiables_definition_file=ruqad_crawler_settings.joinpath('identifiables.yaml'),
-                 remove_prefix="/" + target_dir[:-1])
+                 remove_prefix="/"+os.path.basename(target_dir))
