@@ -124,36 +124,36 @@ DataDir:
                           match_name: variableMeasured
                           subtree:
 
-                            # MetaData:
-                            #   type: PropertiesFromDictElement
-                            #   match: .*
-                            #   record_from_dict:
-                            #     variable_name: Dataset
-                            #     parents:
-                            #     - Dataset
-                            #     properties_blacklist: ["@type", "additionalType"]
-
                             MetaData:
                               type: DictElement
+                              match_properties:
+                                propertyID: (?P<propid>.*)$
+                                value: (?P<propvalue>.*)$
                               records:
-                                MetaData:
                                 Dataset:
-                                  MetaData: +$MetaData
-                              subtree:
-                                PropertyID:
-                                  type: TextElement
-                                  match_name: propertyID
-                                  match_value: (?P<propid>.*)$
-                                  records:
-                                    MetaData:
-                                      name: $propid
-                                PropertyValue:
-                                  type: TextElement
-                                  match_name: value
-                                  match_value: (?P<propvalue>.*)$
-                                  records:
-                                    MetaData:
-                                      v: $propvalue
+                                  $propid: $propvalue
+
+                            # MetaData:
+                            #   type: DictElement
+                            #   records:
+                            #     MetaData:
+                            #     Dataset:
+                            #       MetaData: +$MetaData
+                            #   subtree:
+                            #     PropertyID:
+                            #       type: TextElement
+                            #       match_name: propertyID
+                            #       match_value: (?P<propid>.*)$
+                            #       records:
+                            #         MetaData:
+                            #           name: $propid
+                            #     PropertyValue:
+                            #       type: TextElement
+                            #       match_name: value
+                            #       match_value: (?P<propvalue>.*)$
+                            #       records:
+                            #         MetaData:
+                            #           v: $propvalue
                         Author:
                           # breakpoint: true
                           type: DictElement

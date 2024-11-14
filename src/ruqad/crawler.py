@@ -41,7 +41,6 @@ def trigger_crawler(target_dir: str):
                     print(f"update {join(fp, fn)}")
                     file_ent.update()
 
-    breakpoint()
     print("crawl", target_dir)
     crawler_main(crawled_directory_path=target_dir,
                  cfood_file_name=ruqad_crawler_settings.joinpath('cfood.yaml'),
