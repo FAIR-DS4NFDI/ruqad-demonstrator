@@ -46,7 +46,7 @@ if __name__ == "__main__":
                         # trigger crawler on dir
                         remote_dir_path= os.path.join(cdir, "ruqad", str(rid))
                         os.makedirs(remote_dir_path)
-                        shutil.move(os.path.join(cdir, "archive.zip"),
+                        shutil.move(os.path.join(cdir, "artifacts.zip"),
                                     os.path.join(remote_dir_path, "quality_report.zip"))
                         shutil.move(os.path.join(cdir, "export.eln"),
                                     os.path.join(remote_dir_path, "export.eln"))
