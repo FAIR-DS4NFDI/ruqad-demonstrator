@@ -33,9 +33,9 @@ from datetime import datetime, timezone
 
 sys.path.append(os.path.dirname(__file__))
 
-from qualitycheck import QualityChecker                           # NOQA
-from kadi import collect_records_created_after, download_eln_for  # NOQA
-from crawler import trigger_crawler                               # NOQA
+from .qualitycheck import QualityChecker                           # NOQA
+from .kadi import collect_records_created_after, download_eln_for  # NOQA
+from .crawler import trigger_crawler                               # NOQA
 from kadi_apy import KadiManager                                  # NOQA
 
 
