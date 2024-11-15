@@ -1,18 +1,43 @@
+#!/usr/bin/env python3
+
+# This file is a part of the RuQaD project.
+#
+# Copyright (C) 2024 IndiScale GmbH <www.indiscale.com>
+# Copyright (C) 2024 Henrik tom Wörden <h.tomwoerden@indiscale.com>
+# Copyright (C) 2024 Daniel Hornung <d.hornung@indiscale.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+"""Daemon like script which monitors the Kadi4Mat server for new items.
 """
-monitor the kadi instance
-"""
-import os
-import shutil
+
 import traceback
-from datetime import datetime, timezone
-from tempfile import TemporaryDirectory
+import shutil
+import os
+import argparse
+import sys
 from time import sleep
+from tempfile import TemporaryDirectory
+from datetime import datetime, timezone
 
-from kadi_apy import KadiManager
+sys.path.append(os.path.dirname(__file__))
 
-from .crawler import trigger_crawler
-from .kadi import collect_records_created_after, download_eln_for
-from .qualitycheck import QualityChecker
+from qualitycheck import QualityChecker                           # NOQA
+from kadi import collect_records_created_after, download_eln_for  # NOQA
+from crawler import trigger_crawler                               # NOQA
+from kadi_apy import KadiManager                                  # NOQA
+
 
 KADIARGS = {
     "host": os.environ['KADIHOST'],
@@ -44,7 +69,7 @@ if __name__ == "__main__":
                         qc.check(filename=eln_file, target_dir=cdir)
                         print(f"Quality check done. {os.listdir(cdir)}")
                         # trigger crawler on dir
-                        remote_dir_path= os.path.join(cdir, "ruqad", str(rid))
+                        remote_dir_path = os.path.join(cdir, "ruqad", str(rid))
                         os.makedirs(remote_dir_path)
                         shutil.move(os.path.join(cdir, "artifacts.zip"),
                                     os.path.join(remote_dir_path, "report.zip"))

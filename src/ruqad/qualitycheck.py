@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This file is a part of the RuQaD Project.
+# This file is a part of the RuQaD project.
 #
 # Copyright (C) 2024 IndiScale GmbH <www.indiscale.com>
 # Copyright (C) 2024 Daniel Hornung <d.hornung@indiscale.com>
@@ -27,7 +27,11 @@ import argparse
 import json
 import os
 import time
+from pathlib import Path
 from subprocess import run
+from tempfile import TemporaryDirectory
+from typing import Optional
+from zipfile import ZipFile
 
 import boto3
 import toml
@@ -135,15 +139,46 @@ This deletes all the objects in the bucket.
         for obj in objects:
             self._s3_client.delete_object(Bucket=self._bucketname, Key=obj["Key"])
 
-    def _upload(self, filename: str):
+    def _extract_content(self, filename: str, upload: bool = False):
+        """Extract content from the archive.  May also upload to S3.
+
+        Parameters
+        ----------
+        filename : str
+
+        upload : bool, default=False
+        """
+        with TemporaryDirectory() as tmp:
+            if not tmp.endswith(os.path.sep):
+                tmp = tmp + os.path.sep
+            zipf = ZipFile(filename)
+            zipf.extractall(path=tmp)  # TODO Zip bomb detection and prevention.
+            for name in zipf.namelist():
+                self._upload(os.path.join(tmp, name), remove_prefix=tmp)
+
+    def _upload(self, filename: str, remove_prefix: Optional[str] = None):
         """Upload the file to the S3 bucket.
+
+Compressed files (with suffix .zip or .eln) will be extracted first.
 
 Parameters
 ----------
 filename : str
   The file to be checked.
+
+remove_prefix : Optional[str]
+  If given, remove this prefix from the filename when storing into the bucket.
         """
-        self._s3_client.upload_file(filename, self._bucketname, filename)
+        # Check file type first.
+        if Path(filename).suffix in [".eln", ".zip"]:
+            self._extract_content(filename, upload=True)
+            return
+
+        target_filename = filename
+        if remove_prefix:
+            assert filename.startswith(remove_prefix)
+            target_filename = filename[len(remove_prefix):]
+        self._s3_client.upload_file(filename, self._bucketname, target_filename)
 
     def _trigger_check(self) -> str:
         """Trigger a new pipeline to start quality checks.
@@ -158,7 +193,7 @@ filename : str
                "-X", "POST",
                "--fail",
                "-F", f"token={self._config['gitlab_pipeline_token']}",
-               "-F", "ref=main",
+               "-F", "ref=ruqad",
                "https://gitlab.indiscale.com/api/v4/projects/268/trigger/pipeline"
                ]
         cmd_result = run(cmd, check=False, capture_output=True)
