@@ -178,7 +178,8 @@ remove_prefix : Optional[str]
         if remove_prefix:
             assert filename.startswith(remove_prefix)
             target_filename = filename[len(remove_prefix):]
-        self._s3_client.upload_file(filename, self._bucketname, target_filename)
+        self._s3_client.upload_file(filename, self._bucketname,
+                                    os.path.join("data", target_filename))
 
     def _trigger_check(self) -> str:
         """Trigger a new pipeline to start quality checks.
