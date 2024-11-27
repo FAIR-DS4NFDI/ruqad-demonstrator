@@ -29,10 +29,12 @@ from ruqad.crawler import trigger_crawler
 
 DATADIR = Path(__file__).parent / "data" / "crawler_data"
 
+
 def test_crawl():
     """
     crawl a directory as it would be created by export from kadi and running a data quality check
     """
     print(os.listdir(DATADIR))
     trigger_crawler(os.fspath(DATADIR))
-    klsdjf
+    # klsdjf
+    raise NotImplementedError("Please continue here?")
