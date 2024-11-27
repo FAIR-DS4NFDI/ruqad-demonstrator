@@ -39,9 +39,15 @@ Changelog = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-te
 
 [project.optional-dependencies]
 dev = [
+    "pylint",
+    "ruqad[test]",
 ]
 test = [
     "pytest",
+    "pytest-cov",
+]
+all = [
+    "ruqad[dev]",
 ]
 
 [tool.setuptools.package-data]

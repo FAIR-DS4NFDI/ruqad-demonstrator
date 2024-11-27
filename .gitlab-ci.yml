@@ -59,8 +59,7 @@ unittest_py3.8:
   image: python:3.8
   script: &python_test_script
     # install dependencies
-    - pip install pytest pytest-cov
-    - pip install .
+    - pip install .[all]
     # actual test
     - pytest --cov=ruqad -vv ./unittests
 

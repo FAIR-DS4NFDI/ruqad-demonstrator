@@ -117,7 +117,7 @@ out : bool
             self._download_result(job_id=job_id, target_dir=target_dir)
         except self.CheckFailed as cfe:
             print("Check failed")
-            from IPython import embed
+            from IPython import embed  # NOQA
             embed()
 
             check_ok = False

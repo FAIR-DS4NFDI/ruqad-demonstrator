@@ -23,7 +23,7 @@ RUN pip install --break-system-packages -U \
 # Install Ruqad
 COPY . /git
 RUN rm -r /git/.git
-RUN cd /git/ && pip3 install --break-system-packages .
+RUN cd /git/ && pip3 install --break-system-packages .[all]
 
 WORKDIR /git/integrationtests
 # wait for server,
