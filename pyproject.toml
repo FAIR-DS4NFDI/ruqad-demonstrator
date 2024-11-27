@@ -39,6 +39,7 @@ Changelog = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-te
 
 [project.optional-dependencies]
 dev = [
+    "autopep8",
     "pylint",
     "ruqad[test]",
 ]
