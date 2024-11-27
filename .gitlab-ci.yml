@@ -108,6 +108,11 @@ build-testenv:
       - command -v wget
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
         # use here general latest or specific branch latest...
+      - |-
+        echo > qualitycheck_config.toml << EOF
+        s3_endpoint = "https://s3.computational.bio.uni-giessen.de"
+        s3_bucket = "ruqad"
+        EOF
       - docker build
         --file docker/Dockerfile
         -t $CI_REGISTRY_IMAGE .

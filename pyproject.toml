@@ -55,4 +55,4 @@ all = [
 rq_monitor = "ruqad.monitor:monitor"
 
 [tool.setuptools.package-data]
-ruqad = ["src/ruqad/resources/crawler-settings"]
+ruqad = ["resources/**/*"]
