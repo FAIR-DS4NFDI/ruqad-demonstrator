@@ -9,10 +9,12 @@ __pycache__
 # development artifacts
 venv
 .venv
-/.env/
+.env
 
 # configurations
-qualitycheck_config.toml
+
+# TODO Exclude later, for the time being this will be hardcoded into the image.
+# qualitycheck_config.toml
 
 # build artifacts
 *.egg-info

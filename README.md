@@ -7,12 +7,21 @@ Components)](https://projects.eclipse.org/projects/technology.edc) instance.
 
 ## Usage
 
-
 ### Installation ###
 
 Simply install with:
 
 `pip install .`
+
+### Run locally ###
+
+- Make sure that `qualitycheck_config.toml` and `secrets.sh` are filled with valied values.
+- Run `(set -a && . secrets.sh && rq_monitor)` , explanation follows:
+  - `(...)`: Putting the parentheses prevents pollution of your shell with the variables defined in
+    `secrets.sh`.
+  - `set -a`: This automatically exports all set variables in the shell.
+  - `. secrets.sh`: (Mind the dot `.`) This sources the variables defined in the file.
+  - `rq_monitor`: This starts the actual monitor, using the variables defined before.
 
 ### Unit Tests
 
@@ -38,3 +47,7 @@ extra.)
 <!-- - `sphinx` -->
 <!-- - `recommonmark`  -->
 <!-- - `sphinx-rtd-theme` -->
+
+## Docker deployment ##
+
+Ruqad can also be deployed as a container.  More documentation on this is in `docker/`.
