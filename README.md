@@ -1,14 +1,23 @@
 # FAIR Dataspaces RuQaD
 
-TODO
+RuQaD (Reuse Quality-assured Data) is a demonstrator for connecting and populating FAIR data spaces.
+Ruqad connects to [Kadi4Mat](https://kadi.iam.kit.edu/) instances, runs [quality checks](https://git.rwth-aachen.de/fair-ds/ap-4-2-demonstrator/ap-4.2-data-validation-and-quality-assurance-demonstrator) on the data, stores the results
+in a [LinkAhead](https://getlinkahead.com) instance and makes the data available via an [EDC (Eclipse Dataspace
+Components)](https://projects.eclipse.org/projects/technology.edc) instance.
 
 ## Usage
 
-TODO
+
+### Installation ###
+
+Simply install with:
+
+`pip install .`
 
 ### Unit Tests
 
-Run `pytest unittests/`.
+- For testing, install with the `test` extra, for example like so: `pip install .[test]`
+- Then run `make unittest` or `pytest unittests/`.
 
 ### E2E Tests
 In order to run the E2E test, you need to create a personal access token (pat) in the public 
@@ -17,23 +26,15 @@ In order to run the E2E test, you need to create a personal access token (pat) i
 
 ### Code style and liniting
 
-Run `make style lint` after installing the dependencies listed below.
+Run `make style lint` after installing with the `dev` extra.  (The `dev` extra includes the `test`
+extra.)
 
-### Documentation
+<!-- ### Documentation -->
 
-Run `make doc` after installing the dependencies listed below.
+<!-- Run `make doc` after installing the dependencies listed below. -->
 
-## Dependencies
+<!-- For building the documentation we require -->
 
-Package and optional dependencies are declared in the `pyproject.toml`;
-additional dependencies for testing are listed in the `tox.ini`.
-
-For linting and code-style we additionally require
-
-- `pylint`
-
-For building the documentation we require
-
-- `sphinx`
-- `recommonmark` 
-- `sphinx-rtd-theme`
+<!-- - `sphinx` -->
+<!-- - `recommonmark`  -->
+<!-- - `sphinx-rtd-theme` -->

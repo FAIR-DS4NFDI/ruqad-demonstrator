@@ -45,4 +45,4 @@ lint:
 
 unittest:
 	tox -r
-.PHONY: unittest
+.PHONY: unittests
