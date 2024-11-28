@@ -13,6 +13,10 @@ COPY ./pylinkahead.ini /ruqad/
 
 # Installing the package
 WORKDIR /ruqad/
+# TODO Remove this manual crawler installation after the crawler has been released in version 0.10.2
+RUN pip install --root-user-action=ignore \
+  git+https://gitlab.indiscale.com/caosdb/src/caosdb-crawler.git@dev
+
 RUN pip install --root-user-action=ignore .[all]
 
 CMD rq_monitor

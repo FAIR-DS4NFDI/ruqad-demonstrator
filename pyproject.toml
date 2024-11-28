@@ -24,7 +24,7 @@ classifiers = [
 requires-python = ">= 3.8"
 dependencies = [
              "linkahead",
-             "caoscrawler[rocrate]",
+             "caoscrawler[rocrate] >= 0.10.2",
              "kadi-apy",
              "boto3>=1.35",
              "toml>=0.10",
