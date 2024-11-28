@@ -43,6 +43,6 @@ lint:
 	pylint --unsafe-load-any-extension=y -d all -e E,F src/linkahead_python_package_template
 .PHONY: lint
 
-unittest:
+unittests:
 	tox -r
 .PHONY: unittests
