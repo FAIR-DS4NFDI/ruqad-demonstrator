@@ -58,7 +58,8 @@ unittest_py3.8:
   stage: test
   image: python:3.8
   script: &python_test_script
-    # install dependencies
+    # TODO Remove this manual crawler installation after the crawler has been released in version 0.10.2
+    - pip install --root-user-action=ignore git+https://gitlab.indiscale.com/caosdb/src/caosdb-crawler.git@dev
     - pip install .[all]
     # actual test
     - pytest --cov=ruqad -vv ./unittests
