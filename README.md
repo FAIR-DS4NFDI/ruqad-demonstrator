@@ -16,14 +16,20 @@ Simply install with:
 ### Run locally ###
 
 - Make sure that `qualitycheck_config.toml` and `secrets.sh` are filled with valied values.
-- Run `(set -a && . secrets.sh && rq_monitor)` , explanation follows:
+- Run `(set -a && . secrets.sh && rq_monitor)`, a short explanation follows:
   - `(...)`: Putting the parentheses prevents pollution of your shell with the variables defined in
     `secrets.sh`.
   - `set -a`: This automatically exports all set variables in the shell.
   - `. secrets.sh`: (Mind the dot `.`) This sources the variables defined in the file.
   - `rq_monitor`: This starts the actual monitor, using the variables defined before.
+- To run the service on data, insert new data to the Kadi4Mat instance:
+  - Log in to the Kadi server, with an account whose records are visible with the configured token.
+  - Create new record.
+  - Quickly append a file (for example `abalone.csv` from the *demonstrator4.2* example repo) to the
+    record.
+  - Wait for the new record with the file to be digested by the Ruqad monitor.
 
-### Unit Tests
+### unit Tests
 
 - For testing, install with the `test` extra, for example like so: `pip install .[test]`
 - Then run `make unittest` or `pytest unittests/`.
