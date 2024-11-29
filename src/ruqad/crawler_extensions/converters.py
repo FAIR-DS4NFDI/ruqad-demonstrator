@@ -1,4 +1,9 @@
-# Copyright (C) 2024 IndiScale GmbH <info@indiscale.com>
+# encoding: utf-8
+#
+# This file is a part of the LinkAhead Project.
+#
+# Copyright (C) 2024 Indiscale GmbH <info@indiscale.com>
+# Copyright (C) 2024 Alexander Schlemmer <a.schlemmer@indiscale.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -12,23 +17,3 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-
-"""
-tests the crawling of ELN files
-"""
-import os
-from pathlib import Path
-
-from ruqad.crawler import trigger_crawler
-
-DATADIR = Path(__file__).parent / "data" / "crawler_data"
-
-
-def test_crawl():
-    """
-    crawl a directory as it would be created by export from kadi and running a data quality check
-    """
-    print(os.listdir(DATADIR))
-    trigger_crawler(os.fspath(DATADIR))
-    raise NotImplementedError("Test not implemented.")

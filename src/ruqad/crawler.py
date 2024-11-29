@@ -4,12 +4,16 @@
 
 
 import os
+import sys
 from importlib import resources
 from os import walk
 from os.path import join
 
 import linkahead as db
 from caoscrawler.crawl import crawler_main
+from caoscrawler.scanner import scan_directory
+from caoscrawler.validator import (load_json_schema_from_datamodel_yaml,
+                                   validate)
 
 ruqad_crawler_settings = resources.files('ruqad').joinpath('resources/crawler-settings')
 
@@ -40,6 +44,20 @@ def trigger_crawler(target_dir: str):
                 else:
                     print(f"update {join(fp, fn)}")
                     file_ent.update()
+    print("meta data check")
+    datamodel_yaml_file = ruqad_crawler_settings.joinpath('datamodel.yaml')
+    schemas = load_json_schema_from_datamodel_yaml(datamodel_yaml_file)
+    entities = scan_directory(target_dir,
+                              ruqad_crawler_settings.joinpath('cfood.yaml'))
+
+    # Remove files from entities:
+    records = [r for r in entities if r.role == "Record"]
+    # breakpoint()
+    validation = validate(records, schemas)
+    # breakpoint()
+    if not all([i[0] for i in validation]):
+        print("Metadata validation failed.")
+        sys.exit(1)
 
     print("crawl", target_dir)
     crawler_main(crawled_directory_path=target_dir,
