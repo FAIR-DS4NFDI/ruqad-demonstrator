@@ -1,0 +1,176 @@
+---
+metadata:
+  crawler-version: 0.9.2
+  macros:
+---
+Converters:
+  ELNFile:
+    converter: ELNFileConverter
+    package: caoscrawler.converters
+  ROCrateEntity:
+    converter: ROCrateEntityConverter
+    package: caoscrawler.converters
+
+DataDir:
+  type: Directory
+  match: .*
+  subtree:
+    DataDir:
+      type: Directory
+      match: ^ruqad$
+      subtree:
+        DataDir:
+          type: Directory
+          match: ^[0-9]+$
+          subtree:
+            QualityReportFile:
+              type: SimpleFile
+              match: ^report\.zip$
+              transform:
+                elnfilename:
+                  in: $QualityReportFile
+                  out: $ELNFile
+                  functions:
+                  - replace:
+                      remove: report.zip
+                      insert: export.eln
+              records:
+                ELNFileElement:
+                  parents:
+                  - ELNFile
+                  role: File
+                  file: $ELNFile
+                  path: $ELNFile
+                QualityReportFileElement:
+                  parents:
+                  - QualityReportFile
+                  role: File
+                  file: $QualityReportFile
+                  path: $QualityReportFile
+                  ELNFile: $ELNFileElement
+            ELNFile:
+              type: ELNFile
+              transform:
+                qualityfilename:
+                  in: $ELNFile
+                  out: $QualityReportFile
+                  functions:
+                  - replace:
+                      insert: report.zip
+                      remove: export.eln
+              match: ^.*\.eln$
+              records:
+                QualityReportFileElement:
+                  parents:
+                  - QualityReportFile
+                  role: File
+                  file: $QualityReportFile
+                  path: $QualityReportFile
+                ELNFileElement:
+                  parents:
+                  - ELNFile
+                  role: File
+                  file: $ELNFile
+                  path: $ELNFile
+                  QualityReportFile: $QualityReportFileElement
+              subtree:
+                AuthorDataset:
+                  type: ROCrateEntity
+                  match_entity_type: Person
+                  match_properties:
+                    name: (?P<name>.*)$
+                    "@id": (?P<url>.*)$
+                  records:
+                    Author:
+                      url: $url
+                      name: $name
+                RootDataset:
+                  type: ROCrateEntity
+                  # match_entity_type: Dataset
+                  match_properties:
+                    "@id": \./$
+                  subtree:
+                    Dataset:
+
+                      type: ROCrateEntity
+                      match_entity_type: Dataset
+                      match_properties:
+                        "@id": .*/$
+                        name: (?P<name>.*)
+                        dateCreated: (?P<dateCreated>.*)$
+                        dateModified: (?P<dateModified>.*)$
+                      records:
+                        Dataset:
+                          name: $name
+                          description: $description
+                          dateModified: $dateModified
+                          dateCreated: $dateCreated
+                          ELNFile: $ELNFileElement
+                          QualityReportFile: $QualityReportFileElement
+                      subtree:
+                        Description:
+                          type: DictElement
+                          match_name: description
+                          subtree:
+                            DescriptionString:
+                              type: TextElement
+                              match_name: text
+                              match_value: (?P<text>.*)$
+                              records:
+                                Dataset:
+                                  description: $text
+                        VariableMeasured:
+                          type: ListElement
+                          match_name: variableMeasured
+                          subtree:
+
+                            MetaData:
+                              type: DictElement
+                              match_properties:
+                                propertyID: (?P<propid>.*)$
+                                value: (?P<propvalue>.*)$
+                              records:
+                                Dataset:
+                                  $propid: $propvalue
+
+                            # MetaData:
+                            #   type: DictElement
+                            #   records:
+                            #     MetaData:
+                            #     Dataset:
+                            #       MetaData: +$MetaData
+                            #   subtree:
+                            #     PropertyID:
+                            #       type: TextElement
+                            #       match_name: propertyID
+                            #       match_value: (?P<propid>.*)$
+                            #       records:
+                            #         MetaData:
+                            #           name: $propid
+                            #     PropertyValue:
+                            #       type: TextElement
+                            #       match_name: value
+                            #       match_value: (?P<propvalue>.*)$
+                            #       records:
+                            #         MetaData:
+                            #           v: $propvalue
+                        Author:
+                          # breakpoint: true
+                          type: DictElement
+                          match_name: author
+                          match_value: .*
+                          subtree:
+                            AuthorID:
+                              match_name: "@id"
+                              type: TextElement
+                              match_value: ^(?P<url>(?P<repo>https://.*?)(/users/)(?P<unr>[0-9]+))$
+                              records:
+                                Author:
+                                  nr: $unr
+                                  url: $url
+                                Repository:
+                                  url: $repo
+                                Dataset:
+                                  Author: $Author
+                                  Repository: $Repository
+

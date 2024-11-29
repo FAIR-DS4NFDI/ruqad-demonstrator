@@ -1,0 +1,44 @@
+Dataset:
+  obligatory_properties:
+    Author:
+    Repository:
+    dateModified:
+      datatype: DATETIME
+    dateCreated:
+      datatype: DATETIME
+  recommended_properties:
+    MetaData:
+      datatype: LIST<MetaData>
+    notes:
+      datatype: TEXT
+    rating:
+      datatype: INTEGER
+    voltage:
+      datatype: DOUBLE
+      unit: V
+
+
+MetaData:
+  obligatory_properties:
+    v:
+      datatype: TEXT
+
+Author:
+  obligatory_properties:
+    url:
+      datatype: TEXT
+  recommended_properties:
+    nr:
+      datatype: INTEGER
+
+Repository:
+  obligatory_properties:
+    url:
+
+ELNFile:
+  recommended_properties:
+    QualityReportFile:
+
+QualityReportFile:
+  recommended_properties:
+    ELNFile:
