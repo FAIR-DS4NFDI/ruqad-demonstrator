@@ -10,6 +10,9 @@ from os.path import join
 
 import linkahead as db
 from caoscrawler.crawl import crawler_main
+from caoscrawler.scanner import scan_directory
+from caoscrawler.validator import (load_json_schema_from_datamodel_yaml,
+                                   validate)
 
 ruqad_crawler_settings = resources.files('ruqad').joinpath('resources/crawler-settings')
 
@@ -40,6 +43,17 @@ def trigger_crawler(target_dir: str):
                 else:
                     print(f"update {join(fp, fn)}")
                     file_ent.update()
+    print("meta data check")
+    datamodel_yaml_file = ruqad_crawler_settings.joinpath('datamodel.yaml')
+    schemas = load_json_schema_from_datamodel_yaml(datamodel_yaml_file)
+    records = scan_directory(target_dir,
+                             ruqad_crawler_settings.joinpath('cfood.yaml'))
+
+    # TODO:
+    # remove files from list of validated records before running the validation
+
+    validation = validate(records, schemas)
+    breakpoint()
 
     print("crawl", target_dir)
     crawler_main(crawled_directory_path=target_dir,
