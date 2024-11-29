@@ -18,16 +18,12 @@
 tests the crawling of ELN files
 """
 import os
-import zipfile
-from datetime import datetime
 from pathlib import Path
-from tempfile import NamedTemporaryFile
-from time import sleep
-from uuid import uuid1
 
 from ruqad.crawler import trigger_crawler
 
 DATADIR = Path(__file__).parent / "data" / "crawler_data"
+
 
 def test_crawl():
     """
@@ -35,4 +31,4 @@ def test_crawl():
     """
     print(os.listdir(DATADIR))
     trigger_crawler(os.fspath(DATADIR))
-    klsdjf
+    assert False
