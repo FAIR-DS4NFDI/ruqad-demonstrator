@@ -53,6 +53,7 @@ all = [
 
 [project.scripts]
 rq_monitor = "ruqad.monitor:monitor"
+rq_qualitycheck = "ruqad.qualitycheck:main"
 
 [tool.setuptools.package-data]
 ruqad = ["resources/**/*"]

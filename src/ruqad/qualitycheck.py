@@ -225,7 +225,7 @@ remove_prefix : Optional[str]
         while True:
             cmd_result = run(cmd, check=True, capture_output=True)
             result = json.loads(cmd_result.stdout)
-            if result["finished_at"] is not None:
+            if result["status"] == "running" or result["finished_at"] is not None:
                 break
             time.sleep(1)
         if not result["status"] == "success":
