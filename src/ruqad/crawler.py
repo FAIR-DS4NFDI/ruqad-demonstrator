@@ -4,6 +4,7 @@
 
 
 import os
+import sys
 from importlib import resources
 from os import walk
 from os.path import join
@@ -46,14 +47,17 @@ def trigger_crawler(target_dir: str):
     print("meta data check")
     datamodel_yaml_file = ruqad_crawler_settings.joinpath('datamodel.yaml')
     schemas = load_json_schema_from_datamodel_yaml(datamodel_yaml_file)
-    records = scan_directory(target_dir,
-                             ruqad_crawler_settings.joinpath('cfood.yaml'))
+    entities = scan_directory(target_dir,
+                              ruqad_crawler_settings.joinpath('cfood.yaml'))
 
-    # TODO:
-    # remove files from list of validated records before running the validation
-
+    # Remove files from entities:
+    records = [r for r in entities if r.role == "Record"]
+    # breakpoint()
     validation = validate(records, schemas)
-    breakpoint()
+    # breakpoint()
+    if not all([i[0] for i in validation]):
+        print("Metadata validation failed.")
+        sys.exit(1)
 
     print("crawl", target_dir)
     crawler_main(crawled_directory_path=target_dir,
