@@ -117,8 +117,7 @@ out : bool
             self._download_result(job_id=job_id, target_dir=target_dir)
         except self.CheckFailed as cfe:
             print("Check failed")
-            from IPython import embed  # pylint: disable=import-error
-            embed()
+            breakpoint()
 
             check_ok = False
 
@@ -156,7 +155,8 @@ This deletes all the objects in the bucket.
             for name in zipf.namelist():
                 if name.endswith(".json"):
                     continue
-                self._upload(os.path.join(tmp, name), remove_prefix=tmp)
+                if upload:
+                    self._upload(os.path.join(tmp, name), remove_prefix=tmp)
 
     def _upload(self, filename: str, remove_prefix: Optional[str] = None):
         """Upload the file to the S3 bucket.
@@ -178,7 +178,8 @@ remove_prefix : Optional[str]
 
         target_filename = filename
         if remove_prefix:
-            assert filename.startswith(remove_prefix)
+            if not filename.startswith(remove_prefix):
+                raise ValueError(f"{filename} was expected to start with {remove_prefix}")
             target_filename = filename[len(remove_prefix):]
         self._s3_client.upload_file(filename, self._bucketname,
                                     os.path.join("data", target_filename))
@@ -233,6 +234,10 @@ remove_prefix : Optional[str]
             raise self.CheckFailed(result)
 
         # Get jobs.
+        # We expect that these jobs are run runby the pipeline:
+        # - evaluate: run the quality check
+        # - report: build the report
+        # - pages: publish the report (not relevant for us)
         cmd = [
             "curl",
             "--header", f"PRIVATE-TOKEN: {self._config['gitlab_api_token']}",
