@@ -62,7 +62,9 @@ out: dict
 class QualityChecker:
 
     class CheckFailed(RuntimeError):
-        pass
+        def __init__(self, reason: dict):
+            super().__init__()
+            self.reason = reason
 
     def __init__(self):
         """The QualityChecker can do quality checks for content.
@@ -116,7 +118,7 @@ out : bool
             job_id = self._wait_for_check(pipeline_id=pipeline_id)
             self._download_result(job_id=job_id, target_dir=target_dir)
         except self.CheckFailed as cfe:
-            print("Check failed")
+            print(f"Check failed:\nStatus: {cfe.reason['status']}")
             breakpoint()
 
             check_ok = False
@@ -226,7 +228,7 @@ remove_prefix : Optional[str]
         while True:
             cmd_result = run(cmd, check=True, capture_output=True)
             result = json.loads(cmd_result.stdout)
-            if result["status"] == "running" or result["finished_at"] is not None:
+            if result["status"] != "running" and result["finished_at"] is not None:
                 break
             time.sleep(1)
         if not result["status"] == "success":
