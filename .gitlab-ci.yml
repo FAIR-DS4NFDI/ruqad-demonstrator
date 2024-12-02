@@ -19,15 +19,20 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 variables:
-   CI_REGISTRY_IMAGE: $CI_REGISTRY/caosdb/customers/f-fit/ruqad/ruqad-demonstrator-fair-ds:$CI_COMMIT_REF_NAME
+  CI_REGISTRY_IMAGE: $CI_REGISTRY/caosdb/customers/f-fit/ruqad/ruqad-demonstrator-fair-ds:$CI_COMMIT_REF_NAME
 
 stages:
   - info
   - setup
-  - cert
   - style
   - test
   - deploy
+
+
+# TEMPLATES ==========================================================
+include:
+  - template: Security/SAST.gitlab-ci.yml
+
 
 .env: &env
   - echo "Pipeline triggered by $TRIGGERED_BY_REPO@$TRIGGERED_BY_REF ($TRIGGERED_BY_HASH)"
@@ -135,3 +140,7 @@ pylint:
   script:
     - pylint --unsafe-load-any-extension=y -d all -e E,F src/ruqad
 
+# Everything else is configured in the template, this is only necessary so that the job finds a
+# matching runner.
+sast:
+  tags: [docker]
