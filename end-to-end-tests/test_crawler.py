@@ -30,5 +30,6 @@ def test_crawl():
     crawl a directory as it would be created by export from kadi and running a data quality check
     """
     print(os.listdir(DATADIR))
-    trigger_crawler(os.fspath(DATADIR))
-    assert False
+    # TODO: return value for successful crawler
+    retval = trigger_crawler(os.fspath(DATADIR))
+    assert retval

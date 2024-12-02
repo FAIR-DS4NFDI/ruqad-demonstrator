@@ -187,7 +187,7 @@ DataDir:
                             AuthorID:
                               match_name: "@id"
                               type: TextElement
-                              match_value: ^(?P<url>(?P<repo>https://.*?)(/users/)(?P<unr>[0-9]+))$
+                              match_value: ^(?P<url>(?P<repo>https?://.*?)(/users/)(?P<unr>[0-9]+))$
                               transform:
                                 cast_nr_type:
                                   in: $unr
