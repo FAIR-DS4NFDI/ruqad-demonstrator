@@ -249,7 +249,7 @@ remove_prefix : Optional[str]
         result = json.loads(cmd_result.stdout)
         evaluate_job = [job for job in result if job["name"] == "evaluate"][0]
         if not evaluate_job["status"] == "success":
-            raise self.CheckFailed()
+            raise self.CheckFailed(result)
         report_job = [job for job in result if job["name"] == "report"][0]
         return report_job["id"]
 
