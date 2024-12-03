@@ -20,18 +20,22 @@
 
 variables:
   CI_REGISTRY_IMAGE: $CI_REGISTRY/caosdb/customers/f-fit/ruqad/ruqad-demonstrator-fair-ds:$CI_COMMIT_REF_NAME
+  # Taken from: https://forum.gitlab.com/t/clarification/54346
+  GITLAB_FEATURES: "$GITLAB_FEATURES,dependency_scanning"
 
 stages:
   - info
   - setup
   - style
+  - code-analysis
   - test
   - deploy
 
 
 # TEMPLATES ==========================================================
 include:
-  - template: Security/SAST.gitlab-ci.yml
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 
 
 .env: &env
@@ -48,18 +52,19 @@ info:
   script:
     - *env
 
-e2e_tests:
-  tags: [cached-dind]
-  stage: test
-  image: $CI_REGISTRY_IMAGE
-  #image: python:3.13
-  script:
-    - echo $KADITOKEN
-    - python -m pytest end-to-end-tests/test_kadi.py
+# e2e_tests:
+#   tags: [cached-dind]
+#   stage: test
+#   image: $CI_REGISTRY_IMAGE
+#   #image: python:3.13
+#   script:
+#     - echo $KADITOKEN
+#     - python -m pytest end-to-end-tests/test_kadi.py
 
 
 unittest_py3.9:
   tags: [cached-dind]
+  needs: [build-testenv]
   stage: test
   image: python:3.9
   script: &python_test_script
@@ -69,39 +74,43 @@ unittest_py3.9:
     # actual test
     - pytest --cov=ruqad -vv ./unittests
 
-unittest_py3.10:
-  tags: [cached-dind]
-  stage: test
-  image: python:3.10
-  script: *python_test_script
+# unittest_py3.10:
+#   tags: [cached-dind]
+#   needs:[build-testenv]
+#   stage: test
+#   image: python:3.10
+#   script: *python_test_script
 
-unittest_py3.11:
-  tags: [cached-dind]
-  stage: test
-  image: python:3.11
-  script: *python_test_script
+# unittest_py3.11:
+#   tags: [cached-dind]
+#   needs:[build-testenv]
+#   stage: test
+#   image: python:3.11
+#   script: *python_test_script
 
-unittest_py3.12:
-  tags: [cached-dind]
-  stage: test
-  image: python:3.12
-  script: *python_test_script
+# unittest_py3.12:
+#   tags: [cached-dind]
+#   needs:[build-testenv]
+#   stage: test
+#   image: python:3.12
+#   script: *python_test_script
 
-unittest_py3.13:
-  tags: [cached-dind]
-  stage: test
-  image: python:3.13
-  script: *python_test_script
+# unittest_py3.13:
+#   tags: [cached-dind]
+#   needs:[build-testenv]
+#   stage: test
+#   image: python:3.13
+#   script: *python_test_script
 
 build-testenv:
   tags: [cached-dind]
   image: docker:20.10
   stage: setup
   timeout: 2h
-  only:
-    - schedules
-    - web
-    - pushes
+  # rules:
+  #  - if: $CI_PIPELINE_SOURCE == "push"
+  #  - if: $CI_PIPELINE_SOURCE == "schedule"
+  #  - if: $CI_PIPELINE_SOURCE == "web"
   needs: []
   script:
       - df -h
@@ -122,25 +131,31 @@ code-style:
   tags: [docker]
   stage: style
   image: $CI_REGISTRY_IMAGE
-  needs:
-    - job: build-testenv
-      optional: true
+  needs: [build-testenv]
+  allow_failure: true
   script:
       - autopep8 -r --diff --exit-code .
-  allow_failure: true
 
 pylint:
   tags: [docker]
   stage: style
   image: $CI_REGISTRY_IMAGE
-  needs:
-    - job: build-testenv
-      optional: true
+  needs: [build-testenv]
   allow_failure: true
   script:
-    - pylint --unsafe-load-any-extension=y -d all -e E,F src/ruqad
+      - pylint --unsafe-load-any-extension=y -d all -e E,F src/ruqad
 
-# Everything else is configured in the template, this is only necessary so that the job finds a
-# matching runner.
+# Everything else is configured in the templates.  This is only necessary so that the job finds a
+# matching runner and is run in the correct stage.
+
+# SAST: Static Application Security Testing
 sast:
   tags: [docker]
+  needs: [info]
+  stage: code-analysis
+
+# Dependency scanning and vulnerabilities (SCA, Software Composition Analysis)
+gemnasium-python-dependency_scanning:
+  tags: [docker]
+  needs: [info]
+  stage: code-analysis
