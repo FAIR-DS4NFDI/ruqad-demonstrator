@@ -10,6 +10,12 @@ Converters:
   ROCrateEntity:
     converter: ROCrateEntityConverter
     package: caoscrawler.converters
+Transformers:
+  cast_metadata_type:
+    function: cast_metadata_type
+    package: ruqad.crawler_extensions.transformers
+
+
 
 DataDir:
   type: Directory
@@ -129,6 +135,24 @@ DataDir:
                               match_properties:
                                 propertyID: (?P<propid>.*)$
                                 value: (?P<propvalue>.*)$
+
+                              transform:
+                                cast_voltage_type:
+                                  in: $propvalue
+                                  out: $propvalue
+                                  functions:
+                                  - cast_metadata_type:
+                                      out_type: float
+                                      var_name: $propid
+                                      var_value: voltage
+                                cast_rating_type:
+                                  in: $propvalue
+                                  out: $propvalue
+                                  functions:
+                                  - cast_metadata_type:
+                                      out_type: int
+                                      var_name: $propid
+                                      var_value: rating
                               records:
                                 Dataset:
                                   $propid: $propvalue
@@ -163,7 +187,13 @@ DataDir:
                             AuthorID:
                               match_name: "@id"
                               type: TextElement
-                              match_value: ^(?P<url>(?P<repo>https://.*?)(/users/)(?P<unr>[0-9]+))$
+                              match_value: ^(?P<url>(?P<repo>https?://.*?)(/users/)(?P<unr>[0-9]+))$
+                              transform:
+                                cast_nr_type:
+                                  in: $unr
+                                  out: $unr
+                                  functions:
+                                  - cast_to_int:
                               records:
                                 Author:
                                   nr: $unr

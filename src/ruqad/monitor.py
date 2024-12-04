@@ -25,27 +25,32 @@
 import traceback
 import shutil
 import os
-import argparse
-import sys
+
 from time import sleep
 from tempfile import TemporaryDirectory
 from datetime import datetime, timezone
 
-sys.path.append(os.path.dirname(__file__))
-
-from .qualitycheck import QualityChecker                           # NOQA
-from .kadi import collect_records_created_after, download_eln_for  # NOQA
-from .crawler import trigger_crawler                               # NOQA
-from kadi_apy import KadiManager                                  # NOQA
+from ruqad.qualitycheck import QualityChecker
+from ruqad.kadi import collect_records_created_after, download_eln_for
+from ruqad.crawler import trigger_crawler
+from kadi_apy import KadiManager
 
 
 KADIARGS = {
     "host": os.environ['KADIHOST'],
-    "pat": os.environ['KADITOKEN']
+    "pat": os.environ['KADITOKEN'],
 }
 
 
-if __name__ == "__main__":
+def monitor():
+    """Continuously monitor the Kadi instance given in the environment variables.
+
+    For each new item found, the following steps are performed:
+
+    - Download the eln-format wrapped item.
+    - Run the quality check.
+    - Run the crawler on the item and the quality check result.
+    """
     cut_off_date = datetime.fromisoformat("1990-01-01 02:34:42.484312+00:00")
     while True:
         try:
@@ -84,3 +89,7 @@ if __name__ == "__main__":
             print("ERROR")
             print(traceback.format_exc())
             print(e)
+
+
+if __name__ == "__main__":
+    monitor()
