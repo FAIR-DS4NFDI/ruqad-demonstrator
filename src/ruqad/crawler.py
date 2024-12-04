@@ -18,13 +18,15 @@ from caoscrawler.validator import (load_json_schema_from_datamodel_yaml,
 ruqad_crawler_settings = resources.files('ruqad').joinpath('resources/crawler-settings')
 
 
-def trigger_crawler(target_dir: str):
+def trigger_crawler(target_dir: str) -> bool:
     """
     Trigger a standard crawler run equivalent to the command line:
 
     ```
     caosdb-crawler -i crawler/identifiables.yaml -s update crawler/cfood.yaml <target_dir>
     ```
+
+    Return False in case of unsuccessful metadata validation and True otherwise.
     """
 
     # insert all .zip and .eln files, if they do not yet exist
@@ -52,12 +54,14 @@ def trigger_crawler(target_dir: str):
 
     # Remove files from entities:
     records = [r for r in entities if r.role == "Record"]
-    # breakpoint()
     validation = validate(records, schemas)
-    # breakpoint()
+
     if not all([i[0] for i in validation]):
-        print("Metadata validation failed.")
-        sys.exit(1)
+        print("Metadata validation failed. Validation errors:")
+        for v, recordtype in zip(validation, schemas.keys()):
+            if not v[0]:
+                print("{}: {}".format(recordtype, v[1]))
+        return False
 
     print("crawl", target_dir)
     crawler_main(crawled_directory_path=target_dir,
@@ -65,3 +69,5 @@ def trigger_crawler(target_dir: str):
                  identifiables_definition_file=ruqad_crawler_settings.joinpath(
                      'identifiables.yaml'),
                  remove_prefix="/"+os.path.basename(target_dir))
+
+    return True
