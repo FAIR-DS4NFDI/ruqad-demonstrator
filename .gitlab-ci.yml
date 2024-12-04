@@ -53,22 +53,16 @@ e2e_tests:
     - python -m pytest end-to-end-tests/test_kadi.py
 
 
-unittest_py3.8:
-  tags: [cached-dind]
-  stage: test
-  image: python:3.8
-  script: &python_test_script
-    # install dependencies
-    - pip install pytest pytest-cov
-    - pip install .
-    # actual test
-    - pytest --cov=ruqad -vv ./unittests
-
 unittest_py3.9:
   tags: [cached-dind]
   stage: test
   image: python:3.9
-  script: *python_test_script
+  script: &python_test_script
+    # TODO Remove this manual crawler installation after the crawler has been released in version 0.10.2
+    - pip install --root-user-action=ignore git+https://gitlab.indiscale.com/caosdb/src/caosdb-crawler.git@dev
+    - pip install .[all]
+    # actual test
+    - pytest --cov=ruqad -vv ./unittests
 
 unittest_py3.10:
   tags: [cached-dind]
@@ -109,6 +103,11 @@ build-testenv:
       - command -v wget
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
         # use here general latest or specific branch latest...
+      - |-
+        echo > qualitycheck_config.toml << EOF
+        s3_endpoint = "https://s3.computational.bio.uni-giessen.de"
+        s3_bucket = "ruqad"
+        EOF
       - docker build
         --file docker/Dockerfile
         -t $CI_REGISTRY_IMAGE .

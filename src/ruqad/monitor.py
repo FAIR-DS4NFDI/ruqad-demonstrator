@@ -1,26 +1,56 @@
-"""
-monitor the kadi instance
-"""
-import os
-import shutil
-import traceback
-from datetime import datetime, timezone
-from tempfile import TemporaryDirectory
-from time import sleep
+#!/usr/bin/env python3
 
+# This file is a part of the RuQaD project.
+#
+# Copyright (C) 2024 IndiScale GmbH <www.indiscale.com>
+# Copyright (C) 2024 Henrik tom Wörden <h.tomwoerden@indiscale.com>
+# Copyright (C) 2024 Daniel Hornung <d.hornung@indiscale.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+"""Daemon like script which monitors the Kadi4Mat server for new items.
+"""
+
+import traceback
+import shutil
+import os
+
+from time import sleep
+from tempfile import TemporaryDirectory
+from datetime import datetime, timezone
+
+from ruqad.qualitycheck import QualityChecker
+from ruqad.kadi import collect_records_created_after, download_eln_for
+from ruqad.crawler import trigger_crawler
 from kadi_apy import KadiManager
 
-from .crawler import trigger_crawler
-from .kadi import collect_records_created_after, download_eln_for
-from .qualitycheck import QualityChecker
 
 KADIARGS = {
     "host": os.environ['KADIHOST'],
-    "pat": os.environ['KADITOKEN']
+    "pat": os.environ['KADITOKEN'],
 }
 
 
-if __name__ == "__main__":
+def monitor():
+    """Continuously monitor the Kadi instance given in the environment variables.
+
+    For each new item found, the following steps are performed:
+
+    - Download the eln-format wrapped item.
+    - Run the quality check.
+    - Run the crawler on the item and the quality check result.
+    """
     cut_off_date = datetime.fromisoformat("1990-01-01 02:34:42.484312+00:00")
     while True:
         try:
@@ -44,7 +74,7 @@ if __name__ == "__main__":
                         qc.check(filename=eln_file, target_dir=cdir)
                         print(f"Quality check done. {os.listdir(cdir)}")
                         # trigger crawler on dir
-                        remote_dir_path= os.path.join(cdir, "ruqad", str(rid))
+                        remote_dir_path = os.path.join(cdir, "ruqad", str(rid))
                         os.makedirs(remote_dir_path)
                         shutil.move(os.path.join(cdir, "artifacts.zip"),
                                     os.path.join(remote_dir_path, "report.zip"))
@@ -59,3 +89,7 @@ if __name__ == "__main__":
             print("ERROR")
             print(traceback.format_exc())
             print(e)
+
+
+if __name__ == "__main__":
+    monitor()

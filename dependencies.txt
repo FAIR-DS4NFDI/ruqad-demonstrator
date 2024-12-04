@@ -1,3 +1,0 @@
-# For the quality checker.
-boto3>=1.35
-toml>=0.10

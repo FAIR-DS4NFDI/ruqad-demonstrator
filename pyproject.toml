@@ -24,9 +24,10 @@ classifiers = [
 requires-python = ">= 3.8"
 dependencies = [
              "linkahead",
-             "caoscrawler[rocrate]",
-             "kadi-apy"
-
+             "caoscrawler[rocrate] >= 0.10.2",
+             "kadi-apy",
+             "boto3>=1.35",
+             "toml>=0.10",
 ]
 
 [project.urls]
@@ -38,10 +39,21 @@ Changelog = "https://gitlab.indiscale.com/caosdb/src/linkahead-python-package-te
 
 [project.optional-dependencies]
 dev = [
+    "autopep8",
+    "pylint",
+    "ruqad[test]",
 ]
 test = [
     "pytest",
+    "pytest-cov",
+]
+all = [
+    "ruqad[dev]",
 ]
 
+[project.scripts]
+rq_monitor = "ruqad.monitor:monitor"
+rq_qualitycheck = "ruqad.qualitycheck:main"
+
 [tool.setuptools.package-data]
-ruqad = ["src/ruqad/resources/crawler-settings"]
+ruqad = ["resources/**/*"]
