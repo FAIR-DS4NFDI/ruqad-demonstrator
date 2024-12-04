@@ -133,28 +133,28 @@ unittest_py3.9:
 
 unittest_py3.10:
   tags: [cached-dind]
-  needs:[build-testenv]
+  needs: [build-testenv]
   stage: test
   image: python:3.10
   script: *python_test_script
 
 unittest_py3.11:
   tags: [cached-dind]
-  needs:[build-testenv]
+  needs: [build-testenv]
   stage: test
   image: python:3.11
   script: *python_test_script
 
 unittest_py3.12:
   tags: [cached-dind]
-  needs:[build-testenv]
+  needs: [build-testenv]
   stage: test
   image: python:3.12
   script: *python_test_script
 
 unittest_py3.13:
   tags: [cached-dind]
-  needs:[build-testenv]
+  needs: [build-testenv]
   stage: test
   image: python:3.13
   script: *python_test_script
