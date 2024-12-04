@@ -30,7 +30,7 @@ DataDir:
           match: ^[0-9]+$
           subtree:
             QualityReportFile:
-              type: SimpleFile
+              type: ZipFileConverter
               match: ^report\.zip$
               transform:
                 elnfilename:
@@ -40,6 +40,20 @@ DataDir:
                   - replace:
                       remove: report.zip
                       insert: export.eln
+              subtree:
+                SummaryFile:
+                  type: JSONFileConverter
+                  match: ^qc_summary.json$
+                  subtree:
+                    CheckCounts:
+                      type: Dict
+                      match_properties:
+                        num_total_checks: ^(?P<num_total>[0-9]+)$
+                        num_passing_checks: ^(?P<num_passing>[0-9]+)$
+                      records:
+                        QualityReportFileElement:
+                          numTotalChecks: $num_total
+                          numPassingChecks: $num_passing
               records:
                 ELNFileElement:
                   parents:

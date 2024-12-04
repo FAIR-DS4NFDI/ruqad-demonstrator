@@ -16,6 +16,7 @@ Dataset:
     voltage:
       datatype: DOUBLE
       unit: V
+    QualityCheck:
 
 
 MetaData:
@@ -35,10 +36,22 @@ Repository:
   obligatory_properties:
     url:
 
-# ELNFile:
-#   recommended_properties:
-#     QualityReportFile:
-#
-# QualityReportFile:
-#   recommended_properties:
-#     ELNFile:
+ELNFile:
+
+QualityReportFile:
+
+QualityCheck:
+  recommended_properties:
+    QualityReportFile:
+    numTotalChecks:
+      datatype: INTEGER
+    numPassingChecks:
+      datatype: INTEGER
+    FAIRLicenseCheck:
+      datatype: BOOLEAN
+    FAIRMetadataCheck:
+      datatype: BOOLEAN
+    FAIRPIDCheck:
+      datatype: BOOLEAN
+    FAIRProvenanceCheck:
+      datatype: BOOLEAN
