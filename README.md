@@ -13,6 +13,9 @@ Simply install with:
 
 `pip install .`
 
+Note: You can safely ignore the `requirements.txt`, this file is used as a lock file for components
+analysis.  For more information, look at the section "SCA" below.
+
 ### Run locally ###
 
 - Make sure that `qualitycheck_config.toml` and `secrets.sh` are filled with valied values.
@@ -29,7 +32,9 @@ Simply install with:
     record.
   - Wait for the new record with the file to be digested by the Ruqad monitor.
 
-### unit Tests
+## Development ##
+
+### Unit Tests
 
 - For testing, install with the `test` extra, for example like so: `pip install .[test]`
 - Then run `make unittest` or `pytest unittests/`.
@@ -44,15 +49,12 @@ In order to run the E2E test, you need to create a personal access token (pat) i
 Run `make style lint` after installing with the `dev` extra.  (The `dev` extra includes the `test`
 extra.)
 
-<!-- ### Documentation -->
+### SCA (Software component analysis) ###
 
-<!-- Run `make doc` after installing the dependencies listed below. -->
-
-<!-- For building the documentation we require -->
-
-<!-- - `sphinx` -->
-<!-- - `recommonmark`  -->
-<!-- - `sphinx-rtd-theme` -->
+To run the SCA job in the pipeline, run `make bom` and commit the generated `requirements.txt` to
+git.  This will be used in the `gemnasium-python-dependency_scanning` job of the `code-analysis`
+stage to generate `gl-sbom-pypi-pip.cdx.json` file in CycloneDX format inside the artifacts zip
+file.  This file can be visuealized for example with [Dependency Track](https://dependencytrack.org/).
 
 ## Docker deployment ##
 
