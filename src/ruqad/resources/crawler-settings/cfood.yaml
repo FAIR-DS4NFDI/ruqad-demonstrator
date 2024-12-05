@@ -10,6 +10,12 @@ Converters:
   ROCrateEntity:
     converter: ROCrateEntityConverter
     package: caoscrawler.converters
+  ZipFileConverter:
+    converter: ZipFileConverter
+    package: caoscrawler.converters
+  JSONFileConverter:
+    converter: JSONFileConverter
+    package: caoscrawler.converters
 Transformers:
   cast_metadata_type:
     function: cast_metadata_type
@@ -28,6 +34,8 @@ DataDir:
         DataDir:
           type: Directory
           match: ^[0-9]+$
+          records:
+            QualityCheck:
           subtree:
             QualityReportFile:
               type: ZipFileConverter
@@ -45,15 +53,31 @@ DataDir:
                   type: JSONFileConverter
                   match: ^qc_summary.json$
                   subtree:
-                    CheckCounts:
+                    SubTree:
                       type: Dict
-                      match_properties:
-                        num_total_checks: ^(?P<num_total>[0-9]+)$
-                        num_passing_checks: ^(?P<num_passing>[0-9]+)$
-                      records:
-                        QualityCheck:
-                          numTotalChecks: $num_total
-                          numPassingChecks: $num_passing
+                      match: .*
+                      subtree:
+                        CheckCounts:
+                          match: check_counts
+                          type: Dict
+                          match_properties:
+                            num_total_checks: ^(?P<num_total>[0-9]+)$
+                            num_passing_checks: ^(?P<num_passing>[0-9]+)$
+                          transform:
+                            cast_num_total_to_int:
+                              in: $num_total
+                              out: $num_total
+                              functions:
+                                - cast_to_int:
+                            cast_num_passing_to_int:
+                              in: $num_passing
+                              out: $num_passing
+                              functions:
+                                - cast_to_int:
+                          records:
+                            QualityCheck:
+                              numTotalChecks: $num_total
+                              numPassingChecks: $num_passing
               records:
                 ELNFileElement:
                   parents:
@@ -61,15 +85,15 @@ DataDir:
                   role: File
                   file: $ELNFile
                   path: $ELNFile
-                QualityCheck:
-                  ELNFile: $ELNFileElement
-                  FAIRMetadataCheck: true
                 QualityReportFileElement:
                   parents:
                   - QualityReportFile
                   role: File
                   file: $QualityReportFile
                   path: $QualityReportFile
+                QualityCheck:
+                  ELNFile: $ELNFileElement
+                  QualityReportFile: $QualityReportFileElement
             ELNFile:
               type: ELNFile
               match: ^.*\.eln$
@@ -82,6 +106,7 @@ DataDir:
                   path: $ELNFile
                 QualityCheck:
                   ELNFile: $ELNFileElement
+                  FAIRMetadataCheck: true
               subtree:
                 AuthorDataset:
                   type: ROCrateEntity
@@ -115,7 +140,8 @@ DataDir:
                           dateModified: $dateModified
                           dateCreated: $dateCreated
                           ELNFile: $ELNFileElement
-                          QualityReportFile: $QualityReportFileElement
+                          # QualityReportFile: $QualityReportFileElement  # reference not possible on this level
+                          QualityCheck: $QualityCheck
                       subtree:
                         Description:
                           type: DictElement

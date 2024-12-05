@@ -38,6 +38,7 @@ def trigger_crawler(target_dir: str) -> bool:
                 file_entity = join(fp[len(target_dir):], fn)
                 file_ent = db.File(file=file_path,
                                    path=file_entity)
+
                 print(f"retrieve {join(fp, fn)}")
                 file_ent.retrieve()
                 if file_ent.id is None:
