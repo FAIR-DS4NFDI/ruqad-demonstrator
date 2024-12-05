@@ -51,7 +51,7 @@ DataDir:
                         num_total_checks: ^(?P<num_total>[0-9]+)$
                         num_passing_checks: ^(?P<num_passing>[0-9]+)$
                       records:
-                        QualityReportFileElement:
+                        QualityCheck:
                           numTotalChecks: $num_total
                           numPassingChecks: $num_passing
               records:
@@ -61,38 +61,27 @@ DataDir:
                   role: File
                   file: $ELNFile
                   path: $ELNFile
+                QualityCheck:
+                  ELNFile: $ELNFileElement
+                  FAIRMetadataCheck: true
                 QualityReportFileElement:
                   parents:
                   - QualityReportFile
                   role: File
                   file: $QualityReportFile
                   path: $QualityReportFile
-                  ELNFile: $ELNFileElement
             ELNFile:
               type: ELNFile
-              transform:
-                qualityfilename:
-                  in: $ELNFile
-                  out: $QualityReportFile
-                  functions:
-                  - replace:
-                      insert: report.zip
-                      remove: export.eln
               match: ^.*\.eln$
               records:
-                QualityReportFileElement:
-                  parents:
-                  - QualityReportFile
-                  role: File
-                  file: $QualityReportFile
-                  path: $QualityReportFile
                 ELNFileElement:
                   parents:
                   - ELNFile
                   role: File
                   file: $ELNFile
                   path: $ELNFile
-                  QualityReportFile: $QualityReportFileElement
+                QualityCheck:
+                  ELNFile: $ELNFileElement
               subtree:
                 AuthorDataset:
                   type: ROCrateEntity
@@ -170,28 +159,6 @@ DataDir:
                               records:
                                 Dataset:
                                   $propid: $propvalue
-
-                            # MetaData:
-                            #   type: DictElement
-                            #   records:
-                            #     MetaData:
-                            #     Dataset:
-                            #       MetaData: +$MetaData
-                            #   subtree:
-                            #     PropertyID:
-                            #       type: TextElement
-                            #       match_name: propertyID
-                            #       match_value: (?P<propid>.*)$
-                            #       records:
-                            #         MetaData:
-                            #           name: $propid
-                            #     PropertyValue:
-                            #       type: TextElement
-                            #       match_name: value
-                            #       match_value: (?P<propvalue>.*)$
-                            #       records:
-                            #         MetaData:
-                            #           v: $propvalue
                         Author:
                           # breakpoint: true
                           type: DictElement

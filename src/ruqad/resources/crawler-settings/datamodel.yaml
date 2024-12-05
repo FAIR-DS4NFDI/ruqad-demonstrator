@@ -41,6 +41,8 @@ ELNFile:
 QualityReportFile:
 
 QualityCheck:
+  obligatory_properties:
+    ELNFile:
   recommended_properties:
     QualityReportFile:
     numTotalChecks:
