@@ -17,6 +17,8 @@ Dataset:
       datatype: DOUBLE
       unit: V
     QualityCheck:
+    license:
+      datatype: TEXT
 
 
 MetaData:

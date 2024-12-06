@@ -36,6 +36,10 @@ DataDir:
           match: ^[0-9]+$
           records:
             QualityCheck:
+              FAIRMetadataCheck: true
+              FAIRPIDCheck: false
+              FAIRLicenseCheck: false
+              FAIRProvenanceCheck: false
           subtree:
             QualityReportFile:
               type: ZipFileConverter
@@ -104,9 +108,13 @@ DataDir:
                   role: File
                   file: $ELNFile
                   path: $ELNFile
+
                 QualityCheck:
                   ELNFile: $ELNFileElement
-                  FAIRMetadataCheck: true
+
+                Dataset:
+                  ELNFile: $ELNFileElement
+                  QualityCheck: $QualityCheck
               subtree:
                 AuthorDataset:
                   type: ROCrateEntity
@@ -124,6 +132,16 @@ DataDir:
                   match_properties:
                     "@id": \./$
                   subtree:
+
+                    License:
+                      type: TextElement
+                      match_name: license
+                      match_value: ^(?P<license>.*)$
+                      records:
+                        QualityCheck:
+                          FAIRLicenseCheck: true
+                        Dataset:
+                          license: $license
                     Dataset:
 
                       type: ROCrateEntity
@@ -139,10 +157,11 @@ DataDir:
                           description: $description
                           dateModified: $dateModified
                           dateCreated: $dateCreated
-                          ELNFile: $ELNFileElement
+
                           # QualityReportFile: $QualityReportFileElement  # reference not possible on this level
-                          QualityCheck: $QualityCheck
+
                       subtree:
+
                         Description:
                           type: DictElement
                           match_name: description
@@ -210,4 +229,6 @@ DataDir:
                                 Dataset:
                                   Author: $Author
                                   Repository: $Repository
+                                QualityCheck:
+                                  FAIRProvenanceCheck: true
 
