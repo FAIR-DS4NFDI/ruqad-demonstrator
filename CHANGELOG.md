@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added ###
 
-- LinkAhead crawler for the metadata check.
-- Triggers the quality checker.
-- Docker build file and instructions.
-- CI pipeline.
-
 ### Changed ###
 
 ### Deprecated ###
@@ -25,3 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security ###
 
 ### Documentation ###
+
+
+## [0.1.0] ##
+
+### Added ###
+
+- LinkAhead crawler for the metadata check.
+- Triggers the quality checker.
+- Docker build file and instructions.
+- CI pipeline.

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ruqad"
-description = "A tool for quality assured data integration from Kadi to LinkAhead."
-version = "0.0.1"
+description = "Quality assured data integration from Kadi to LinkAhead."
+version = "0.1.1"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
