@@ -155,7 +155,7 @@ This deletes all the objects in the bucket.
             zipf = ZipFile(filename)
             zipf.extractall(path=tmp)  # TODO Zip bomb detection and prevention.
             for name in zipf.namelist():
-                if name.endswith(".json"):
+                if name.endswith(".json") or name.endswith(os.path.sep):
                     continue
                 if upload:
                     self._upload(os.path.join(tmp, name), remove_prefix=tmp)
