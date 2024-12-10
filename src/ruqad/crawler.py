@@ -18,7 +18,7 @@ from caoscrawler.validator import (load_json_schema_from_datamodel_yaml,
 ruqad_crawler_settings = resources.files('ruqad').joinpath('resources/crawler-settings')
 
 
-def trigger_crawler(target_dir: str) -> bool:
+def trigger_crawler(target_dir: str) -> tuple[bool, list[db.Entity]]:
     """
     Trigger a standard crawler run equivalent to the command line:
 
@@ -26,7 +26,13 @@ def trigger_crawler(target_dir: str) -> bool:
     caosdb-crawler -i crawler/identifiables.yaml -s update crawler/cfood.yaml <target_dir>
     ```
 
-    Return False in case of unsuccessful metadata validation and True otherwise.
+    Returns
+    -------
+
+    out: tuple[bool, list[db.Entity]]
+      - 1st element of tuple: ``False`` in case of unsuccessful metadata validation
+        and ``True`` otherwise.
+      - 2nd element of tuple: list of quality check records.
     """
 
     # insert all .zip and .eln files, if they do not yet exist
@@ -38,6 +44,7 @@ def trigger_crawler(target_dir: str) -> bool:
                 file_entity = join(fp[len(target_dir):], fn)
                 file_ent = db.File(file=file_path,
                                    path=file_entity)
+
                 print(f"retrieve {join(fp, fn)}")
                 file_ent.retrieve()
                 if file_ent.id is None:
@@ -52,6 +59,17 @@ def trigger_crawler(target_dir: str) -> bool:
     entities = scan_directory(target_dir,
                               ruqad_crawler_settings.joinpath('cfood.yaml'))
 
+    ent_qc = []                 # Quality check result records
+
+    # Show warning if license is not present in an eln file:
+    for ent in entities:
+        if not (len(ent.parents) == 1 and ent.parents[0].name == "QualityCheck"):
+            continue
+        ent_qc.append(ent)
+
+        if not ent.get_property("FAIRLicenseCheck").value:
+            print("{} does not contain a license.".format(ent.get_property("ELNFile").value.path))
+
     # Remove files from entities:
     records = [r for r in entities if r.role == "Record"]
     validation = validate(records, schemas)
@@ -61,7 +79,7 @@ def trigger_crawler(target_dir: str) -> bool:
         for v, recordtype in zip(validation, schemas.keys()):
             if not v[0]:
                 print("{}: {}".format(recordtype, v[1]))
-        return False
+        return (False, ent_qc)
 
     print("crawl", target_dir)
     crawler_main(crawled_directory_path=target_dir,
@@ -70,4 +88,4 @@ def trigger_crawler(target_dir: str) -> bool:
                      'identifiables.yaml'),
                  remove_prefix="/"+os.path.basename(target_dir))
 
-    return True
+    return (True, ent_qc)

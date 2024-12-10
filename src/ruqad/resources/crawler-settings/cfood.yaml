@@ -1,6 +1,6 @@
 ---
 metadata:
-  crawler-version: 0.9.2
+  crawler-version: 0.10.2
   macros:
 ---
 Converters:
@@ -9,6 +9,12 @@ Converters:
     package: caoscrawler.converters
   ROCrateEntity:
     converter: ROCrateEntityConverter
+    package: caoscrawler.converters
+  ZipFileConverter:
+    converter: ZipFileConverter
+    package: caoscrawler.converters
+  JSONFileConverter:
+    converter: JSONFileConverter
     package: caoscrawler.converters
 Transformers:
   cast_metadata_type:
@@ -28,9 +34,15 @@ DataDir:
         DataDir:
           type: Directory
           match: ^[0-9]+$
+          records:
+            QualityCheck:
+              FAIRMetadataCheck: true
+              FAIRPIDCheck: false
+              FAIRLicenseCheck: false
+              FAIRProvenanceCheck: false
           subtree:
             QualityReportFile:
-              type: SimpleFile
+              type: ZipFileConverter
               match: ^report\.zip$
               transform:
                 elnfilename:
@@ -40,6 +52,36 @@ DataDir:
                   - replace:
                       remove: report.zip
                       insert: export.eln
+              subtree:
+                SummaryFile:
+                  type: JSONFileConverter
+                  match: ^qc_summary.json$
+                  subtree:
+                    SubTree:
+                      type: Dict
+                      match: .*
+                      subtree:
+                        CheckCounts:
+                          match: check_counts
+                          type: Dict
+                          match_properties:
+                            num_total_checks: ^(?P<num_total>[0-9]+)$
+                            num_passing_checks: ^(?P<num_passing>[0-9]+)$
+                          transform:
+                            cast_num_total_to_int:
+                              in: $num_total
+                              out: $num_total
+                              functions:
+                                - cast_to_int:
+                            cast_num_passing_to_int:
+                              in: $num_passing
+                              out: $num_passing
+                              functions:
+                                - cast_to_int:
+                          records:
+                            QualityCheck:
+                              numTotalChecks: $num_total
+                              numPassingChecks: $num_passing
               records:
                 ELNFileElement:
                   parents:
@@ -53,32 +95,26 @@ DataDir:
                   role: File
                   file: $QualityReportFile
                   path: $QualityReportFile
+                QualityCheck:
                   ELNFile: $ELNFileElement
+                  QualityReportFile: $QualityReportFileElement
             ELNFile:
               type: ELNFile
-              transform:
-                qualityfilename:
-                  in: $ELNFile
-                  out: $QualityReportFile
-                  functions:
-                  - replace:
-                      insert: report.zip
-                      remove: export.eln
               match: ^.*\.eln$
               records:
-                QualityReportFileElement:
-                  parents:
-                  - QualityReportFile
-                  role: File
-                  file: $QualityReportFile
-                  path: $QualityReportFile
                 ELNFileElement:
                   parents:
                   - ELNFile
                   role: File
                   file: $ELNFile
                   path: $ELNFile
-                  QualityReportFile: $QualityReportFileElement
+
+                QualityCheck:
+                  ELNFile: $ELNFileElement
+
+                Dataset:
+                  ELNFile: $ELNFileElement
+                  QualityCheck: $QualityCheck
               subtree:
                 AuthorDataset:
                   type: ROCrateEntity
@@ -96,6 +132,16 @@ DataDir:
                   match_properties:
                     "@id": \./$
                   subtree:
+
+                    License:
+                      type: TextElement
+                      match_name: license
+                      match_value: ^(?P<license>.*)$
+                      records:
+                        QualityCheck:
+                          FAIRLicenseCheck: true
+                        Dataset:
+                          license: $license
                     Dataset:
 
                       type: ROCrateEntity
@@ -111,9 +157,11 @@ DataDir:
                           description: $description
                           dateModified: $dateModified
                           dateCreated: $dateCreated
-                          ELNFile: $ELNFileElement
-                          QualityReportFile: $QualityReportFileElement
+
+                          # QualityReportFile: $QualityReportFileElement  # reference not possible on this level
+
                       subtree:
+
                         Description:
                           type: DictElement
                           match_name: description
@@ -156,28 +204,6 @@ DataDir:
                               records:
                                 Dataset:
                                   $propid: $propvalue
-
-                            # MetaData:
-                            #   type: DictElement
-                            #   records:
-                            #     MetaData:
-                            #     Dataset:
-                            #       MetaData: +$MetaData
-                            #   subtree:
-                            #     PropertyID:
-                            #       type: TextElement
-                            #       match_name: propertyID
-                            #       match_value: (?P<propid>.*)$
-                            #       records:
-                            #         MetaData:
-                            #           name: $propid
-                            #     PropertyValue:
-                            #       type: TextElement
-                            #       match_name: value
-                            #       match_value: (?P<propvalue>.*)$
-                            #       records:
-                            #         MetaData:
-                            #           v: $propvalue
                         Author:
                           # breakpoint: true
                           type: DictElement
@@ -203,4 +229,6 @@ DataDir:
                                 Dataset:
                                   Author: $Author
                                   Repository: $Repository
+                                QualityCheck:
+                                  FAIRProvenanceCheck: true
 

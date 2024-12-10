@@ -40,6 +40,16 @@ analysis.  For more information, look at the section "SCA" below.
 - Then run `make unittest` or `pytest unittests/`.
 
 ### E2E Tests
+
+#### LinkAhead setup ####
+
+- Start an (empty) LinkAhead instance.
+- Set up `pylinkahead.ini` to use this instance.
+- Call `./insert_datamodel.sh` in the `linkahead_setup` directory to set up the datamodel in the
+  LinkAhead instance.
+
+#### KADI token ####
+
 In order to run the E2E test, you need to create a personal access token (pat) in the public 
 [demo instance](https://demo-kadi4mat.iam.kit.edu). You can then run the test as follows:
 `KADITOKEN=<token> python -m pytest end-to-end-tests/test_kadi.py`
