@@ -29,6 +29,7 @@ stages:
   - style
   - code-analysis
   - test
+  - pages
   - deploy
 
 
@@ -51,15 +52,6 @@ info:
   needs: []
   script:
     - *env
-
-e2e_tests:
-  tags: [cached-dind]
-  stage: test
-  image: $CI_REGISTRY_IMAGE
-  #image: python:3.13
-  script:
-    - echo $KADITOKEN
-    - python -m pytest end-to-end-tests/test_kadi.py
 
 build-testenv:
   tags: [cached-dind]
@@ -119,6 +111,25 @@ gemnasium-python-dependency_scanning:
   needs: [info]
   stage: code-analysis
 
+##################
+### Test stage ###
+##################
+
+e2e_tests:
+  tags: [cached-dind]
+  needs: [build-testenv]
+  stage: test
+  image: $CI_REGISTRY_IMAGE
+  #image: python:3.13
+  script:
+    - echo $KADITOKEN
+    - pytest --cov=ruqad end-to-end-tests/test_kadi.py
+    - mkdir coverage
+    - mv .coverage coverage/e2e
+  artifacts:
+    paths:
+      - coverage/
+
 unittest_py3.9:
   tags: [cached-dind]
   needs: [build-testenv]
@@ -130,6 +141,11 @@ unittest_py3.9:
     - pip install .[all]
     # actual test
     - pytest --cov=ruqad -vv ./unittests
+    - mkdir coverage
+    - mv .coverage coverage/"${CI_JOB_NAME}"
+  artifacts:
+    paths:
+      - coverage
 
 unittest_py3.10:
   tags: [cached-dind]
@@ -158,3 +174,29 @@ unittest_py3.13:
   stage: test
   image: python:3.13
   script: *python_test_script
+  artifacts:
+    paths:
+      - coverage
+
+# Collect coverage reports from multiple tests, combine them and generate a web page
+coverage_job:
+  tags: [cached-dind]
+  image: python:3.13
+  stage: pages
+  needs:
+    - e2e_tests
+    - unittest_py3.13
+  script:
+    - ls -alrth . coverage
+    - pip install --root-user-action=ignore pytest-cov
+    - pip install --no-deps .
+    - coverage combine coverage/*
+    - coverage html
+    - mv htmlcov public
+    - echo -e "To look at the coverage report, either download the artifact or go to:\n    > https://docs.indiscale.com/customers/f-fit/ruqad/"
+    - coverage report
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  pages: true
+  artifacts:
+    paths:
+      - public
