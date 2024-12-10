@@ -1,9 +1,9 @@
 # FAIR Dataspaces RuQaD
 
-RuQaD (Reuse Quality-assured Data) is a demonstrator for connecting and populating FAIR data spaces.
-Ruqad connects to [Kadi4Mat](https://kadi.iam.kit.edu/) instances, runs [quality checks](https://git.rwth-aachen.de/fair-ds/ap-4-2-demonstrator/ap-4.2-data-validation-and-quality-assurance-demonstrator) on the data, stores the results
-in a [LinkAhead](https://getlinkahead.com) instance and makes the data available via an [EDC (Eclipse Dataspace
-Components)](https://projects.eclipse.org/projects/technology.edc) instance.
+RuQaD (**R**e**u**se **Q**uality-**a**ssured **D**ata) is a demonstrator for connecting and
+populating FAIR data spaces.  Ruqad connects to [Kadi4Mat](https://kadi.iam.kit.edu/) instances, runs [quality checks](https://git.rwth-aachen.de/fair-ds/ap-4-2-demonstrator/ap-4.2-data-validation-and-quality-assurance-demonstrator) on
+the data, stores the results in a [LinkAhead](https://getlinkahead.com) instance and makes the data available via an [EDC
+(Eclipse Dataspace Components)](https://projects.eclipse.org/projects/technology.edc) instance.
 
 ## Usage
 
