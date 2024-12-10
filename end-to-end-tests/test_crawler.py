@@ -26,12 +26,18 @@ from ruqad.crawler import trigger_crawler
 DATADIR = Path(__file__).parent / "data" / "crawler_data"
 
 
-def test_crawl():
+def test_crawl(capsys):
     """
     crawl a directory as it would be created by export from kadi and running a data quality check
     """
     print(os.listdir(DATADIR))
     retval, ent_qc = trigger_crawler(os.fspath(DATADIR))
+
+    stdout, stderr = capsys.readouterr()
+
+    # Check whether the warning is displayed for the license check:
+    assert "/1222/export.eln does not contain a license." in stdout
+    assert "/1223/export.eln does not contain a license." not in stdout
 
     # Check that validation of metadata was successful:
     assert retval
