@@ -18,6 +18,7 @@
 tests the crawling of ELN files
 """
 import os
+import re
 from pathlib import Path
 
 from ruqad.crawler import trigger_crawler
@@ -30,5 +31,18 @@ def test_crawl():
     crawl a directory as it would be created by export from kadi and running a data quality check
     """
     print(os.listdir(DATADIR))
-    retval = trigger_crawler(os.fspath(DATADIR))
+    retval, ent_qc = trigger_crawler(os.fspath(DATADIR))
+
+    # Check that validation of metadata was successful:
     assert retval
+
+    # Check that license was present in 1223 and absent in 1222:
+    qc = {}
+    for ent in ent_qc:
+        pth = ent.get_property("ELNFile").value.path
+        match = re.match("/.*/.*/(?P<folder>[0-9]+)/.*\.eln", pth)
+        assert match is not None
+        qc[match.group("folder")] = ent
+
+    assert qc["1223"].get_property("FAIRLicenseCheck").value
+    assert not qc["1222"].get_property("FAIRLicenseCheck").value
