@@ -5,6 +5,8 @@ populating FAIR data spaces.  Ruqad connects to [Kadi4Mat](https://kadi.iam.kit.
 the data, stores the results in a [LinkAhead](https://getlinkahead.com) instance and makes the data available via an [EDC
 (Eclipse Dataspace Components)](https://projects.eclipse.org/projects/technology.edc) instance.
 
+![coverage](https://gitlab.indiscale.com/caosdb/customers/f-fit/ruqad/badges/dev/coverage.svg?job=coverage)
+
 ## Usage
 
 ### Installation ###
