@@ -26,10 +26,13 @@ def trigger_crawler(target_dir: str) -> tuple[bool, list[db.Entity]]:
     caosdb-crawler -i crawler/identifiables.yaml -s update crawler/cfood.yaml <target_dir>
     ```
 
-    A tuple:
-    - 1st element of tuple: Return False in case of unsuccessful metadata validation
-      and True otherwise.
-    - 2nd element of tuple: list of quality check records.
+    Returns
+    -------
+
+    out: tuple[bool, list[db.Entity]]
+      - 1st element of tuple: ``False`` in case of unsuccessful metadata validation
+        and ``True`` otherwise.
+      - 2nd element of tuple: list of quality check records.
     """
 
     # insert all .zip and .eln files, if they do not yet exist
@@ -56,7 +59,7 @@ def trigger_crawler(target_dir: str) -> tuple[bool, list[db.Entity]]:
     entities = scan_directory(target_dir,
                               ruqad_crawler_settings.joinpath('cfood.yaml'))
 
-    ent_qc = []
+    ent_qc = []                 # Quality check result records
 
     # Show warning if license is not present in an eln file:
     for ent in entities:

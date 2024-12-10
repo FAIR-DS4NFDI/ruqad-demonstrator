@@ -30,7 +30,9 @@ def test_crawl(capsys):
     """
     crawl a directory as it would be created by export from kadi and running a data quality check
     """
+    print(f"\nData directory: {DATADIR}")
     print(os.listdir(DATADIR))
+
     retval, ent_qc = trigger_crawler(os.fspath(DATADIR))
 
     stdout, stderr = capsys.readouterr()
@@ -46,6 +48,7 @@ def test_crawl(capsys):
     qc = {}
     for ent in ent_qc:
         pth = ent.get_property("ELNFile").value.path
+        # Get folder name ("1222" or "1223")
         match = re.match("/.*/.*/(?P<folder>[0-9]+)/.*\\.eln", pth)
         assert match is not None
         qc[match.group("folder")] = ent
@@ -54,6 +57,9 @@ def test_crawl(capsys):
     assert not qc["1222"].get_property("FAIRLicenseCheck").value
 
     # Check whether the information from "report.zip" is present:
-    for d in ("1222", "1223"):
+    for total, passed, d in ((20, 18, "1222"),
+                             (20, 18, "1223")):
         assert type(qc[d].get_property("numTotalChecks").value) == int
         assert type(qc[d].get_property("numPassingChecks").value) == int
+        assert qc[d].get_property("numTotalChecks").value == total
+        assert qc[d].get_property("numPassingChecks").value == passed
