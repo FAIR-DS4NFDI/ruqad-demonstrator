@@ -40,9 +40,14 @@ def test_crawl():
     qc = {}
     for ent in ent_qc:
         pth = ent.get_property("ELNFile").value.path
-        match = re.match("/.*/.*/(?P<folder>[0-9]+)/.*\.eln", pth)
+        match = re.match("/.*/.*/(?P<folder>[0-9]+)/.*\\.eln", pth)
         assert match is not None
         qc[match.group("folder")] = ent
 
     assert qc["1223"].get_property("FAIRLicenseCheck").value
     assert not qc["1222"].get_property("FAIRLicenseCheck").value
+
+    # Check whether the information from "report.zip" is present:
+    for d in ("1222", "1223"):
+        assert type(qc[d].get_property("numTotalChecks").value) == int
+        assert type(qc[d].get_property("numPassingChecks").value) == int
