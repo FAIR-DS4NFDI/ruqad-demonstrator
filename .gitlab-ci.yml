@@ -189,14 +189,18 @@ coverage_job:
     - e2e_tests
     - unittest_py3.13
   script:
+    # Setup
     - ls -alrth . coverage
     - pip install --root-user-action=ignore pytest-cov
     - pip install --no-deps .
+    # Merging and report generation
     - coverage combine coverage/*
     - coverage html
     - mv htmlcov public
+    # Output for the pipeline follows
     - echo -e "To look at the coverage report, either download the artifact or go to:\n    > https://docs.indiscale.com/customers/f-fit/ruqad/"
     - coverage report
+  # Regex taken from https://docs.gitlab.com/ee/ci/testing/code_coverage.html#test-coverage-examples
   coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   pages: true
   artifacts:
