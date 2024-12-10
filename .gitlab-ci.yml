@@ -139,6 +139,8 @@ unittest_py3.9:
     # TODO Remove this manual crawler installation after the crawler has been released in version 0.10.2
     - pip install --root-user-action=ignore git+https://gitlab.indiscale.com/caosdb/src/caosdb-crawler.git@dev
     - pip install .[all]
+    # Setting up the configuration
+    - cp qualitycheck_config.example.toml qualitycheck_config.toml
     # actual test
     - pytest --cov=ruqad -vv ./unittests
     - mkdir coverage
