@@ -19,7 +19,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 variables:
-  CI_REGISTRY_IMAGE: $CI_REGISTRY/caosdb/customers/f-fit/ruqad/ruqad-demonstrator-fair-ds:$CI_COMMIT_REF_NAME
+  CI_REGISTRY_IMAGE: $CI_REGISTRY/caosdb/src/fair-data-spaces/ruqad/ruqad-demonstrator-fair-ds:$CI_COMMIT_REF_NAME
   # Taken from: https://forum.gitlab.com/t/clarification/54346
   GITLAB_FEATURES: "$GITLAB_FEATURES,dependency_scanning"
 
