@@ -29,18 +29,18 @@ import os
 from time import sleep
 from tempfile import TemporaryDirectory
 from datetime import datetime, timezone
+from pathlib import Path
 
 from ruqad.qualitycheck import QualityChecker
-from ruqad.kadi import collect_records_created_after, download_eln_for
+from ruqad.kadi import collect_records_created_after, download_eln_for, KadiManager
 from ruqad.crawler import trigger_crawler
-from kadi_apy import KadiManager
-
 
 KADIARGS = {
     "host": os.environ['KADIHOST'],
     "pat": os.environ['KADITOKEN'],
 }
 
+SKIP_QUALITY_CHECK = os.getenv("SKIP_QUALITY_CHECK") is not None
 
 def monitor():
     """Continuously monitor the Kadi instance given in the environment variables.
@@ -56,28 +56,34 @@ def monitor():
         try:
             timestamp = datetime.now(timezone.utc)
             with KadiManager(**KADIARGS) as manager:
-                qc = QualityChecker()
                 print(f"Checking for records created after {cut_off_date}...")
                 rec_ids = collect_records_created_after(manager, cut_off_date)
                 cut_off_date = timestamp
 
-                if len(rec_ids) > 5:
+                if len(rec_ids) > 25:
                     print("skipping, too many recs: ", len(rec_ids))
                     continue
                 if len(rec_ids) == 0:
                     print("no new recs")
                 for rid in rec_ids:
-                    with TemporaryDirectory() as cdir:
+                    with TemporaryDirectory(delete=False) as cdir:
                         eln_file = os.path.join(cdir, "export.eln")
                         download_eln_for(manager, rid, path=eln_file)
                         print(f"Downlaoded {eln_file}")
-                        qc.check(filename=eln_file, target_dir=cdir)
-                        print(f"Quality check done. {os.listdir(cdir)}")
+                        if SKIP_QUALITY_CHECK:
+                            print("Found env 'SKIP_QUALITY_CHECK', skipping quality check")
+                        else:
+                            qc = QualityChecker()
+                            qc.check(filename=eln_file, target_dir=cdir)
+                            print(f"Quality check done. {os.listdir(cdir)}")
                         # trigger crawler on dir
                         remote_dir_path = os.path.join(cdir, "ruqad", str(rid))
                         os.makedirs(remote_dir_path)
-                        shutil.move(os.path.join(cdir, "artifacts.zip"),
-                                    os.path.join(remote_dir_path, "report.zip"))
+                        if os.path.exists(os.path.join(cdir, "artifacts.zip")):
+                            shutil.move(os.path.join(cdir, "artifacts.zip"),
+                                        os.path.join(remote_dir_path, "report.zip"))
+                        #else:
+                        #    Path(os.path.join(remote_dir_path, "report.zip")).touch()
                         shutil.move(os.path.join(cdir, "export.eln"),
                                     os.path.join(remote_dir_path, "export.eln"))
                         trigger_crawler(target_dir=cdir)

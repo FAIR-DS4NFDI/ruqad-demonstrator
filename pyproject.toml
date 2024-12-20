@@ -24,7 +24,7 @@ classifiers = [
 requires-python = ">= 3.8"
 dependencies = [
              "linkahead",
-             "caoscrawler[rocrate] >= 0.10.2",
+             "caoscrawler[rocrate] @ file:///home/tf/src/caosdb-crawler",
              "kadi-apy",
              "boto3>=1.35",
              "toml>=0.10",
@@ -44,6 +44,7 @@ dev = [
     "ruqad[test]",
 ]
 test = [
+    "tox",
     "pytest",
     "pytest-cov",
 ]
