@@ -24,6 +24,7 @@ from pathlib import Path
 from ruqad.crawler import trigger_crawler
 
 DATADIR = Path(__file__).parent / "data" / "crawler_data"
+BROKEN_DATADIR = Path(__file__).parent / "data" / "broken_crawler_data"
 
 
 def test_crawl(capsys):
@@ -63,3 +64,14 @@ def test_crawl(capsys):
         assert type(qc[d].get_property("numPassingChecks").value) == int
         assert qc[d].get_property("numTotalChecks").value == total
         assert qc[d].get_property("numPassingChecks").value == passed
+#
+#
+# def test_broken_metadata():
+#     print(f"\nData directory: {BROKEN_DATADIR}")
+#     print(os.listdir(BROKEN_DATADIR))
+#
+#     retval, ent_qc = trigger_crawler(os.fspath(BROKEN_DATADIR))
+#
+#     # stdout, stderr = capsys.readouterr()
+#
+#     assert not retval
