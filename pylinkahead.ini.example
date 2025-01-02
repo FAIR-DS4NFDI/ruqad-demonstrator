@@ -1,0 +1,37 @@
+# The INI file must be located either in
+# - $CWD/pylinkahead.ini
+# - $HOME/.pylinkahead.ini
+# - the location given in the env variable PYLINKAHEADINI
+
+[Connection]
+# url=https://demo.indiscale.com/
+url=https://localhost:10443/
+
+## If this option is set, the SSL certificate will be ignored.  Use with care!
+ssl_insecure=1
+
+username=admin
+
+## The password input method can be chosen with the `password_method` setting,
+## which by default is set to `plain`.
+##
+## DEFAULT: the password method is `plain`, now the password must be saved as
+## plain text.
+password_method=input
+# password_method=plain
+# password=caosdb
+
+## OR: `input`: username is optional, password is entered by the user directly
+# password_method=input
+
+## OR: `pass`: password is retrieved from the "pass" password manager
+# password_method=pass
+# password_identifier=...
+
+## OR: `keyring`: using the system keyring/wallet (macOS, GNOME, KDE, Windows)
+## requires installation of the keyring python package:
+## pip install keyring
+# password_method=keyring
+
+timeout=10000
+
