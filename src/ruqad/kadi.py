@@ -18,7 +18,7 @@
 utilities to create .eln exports for certain records hosted in a Kadi instance
 """
 from __future__ import annotations
-from kadi_apy import KadiManager
+from kadi_apy import KadiManager as _KadiManager
 from datetime import datetime
 
 PAGE_SIZE = 100
@@ -89,6 +89,12 @@ def download_eln_for(manager: KadiManager, rid: int, path: str) -> None:
     rec = manager.record(id=rid)
     rec.export(path=path, export_type='ro-crate')
 
+class KadiManager(_KadiManager):
+    """Fix KadiManager to respect context root in url."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.host = f'{kwargs["host"]}/api/v1'
 
 def main():
     with KadiManager(instance='demo') as manager:

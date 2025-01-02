@@ -181,7 +181,7 @@ DataDir:
                             MetaData:
                               type: DictElement
                               match_properties:
-                                propertyID: (?P<propid>.*)$
+                                propertyID: (?P<propid>(voltage|rating))$
                                 value: (?P<propvalue>.*)$
 
                               transform:

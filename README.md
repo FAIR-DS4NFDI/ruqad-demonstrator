@@ -16,8 +16,15 @@ Simply install with:
 Note: You can safely ignore the `requirements.txt`, this file is used as a lock file for components
 analysis.  For more information, look at the section "SCA" below.
 
+Additional runtime requirements:
+
+* curl
+
 ### Run locally ###
 
+- Configure your linkahead connection at [pylinkahead.ini](./pylinkahead.ini)
+- Insert/synchronize the linkahead datamodel:
+  `python -m caosadvancedtools.models.parser src/ruqad/resources/crawler-settings/datamodel.yaml --sync`
 - Make sure that `qualitycheck_config.toml` and `secrets.sh` are filled with valied values.
 - Run `(set -a && . secrets.sh && rq_monitor)`, a short explanation follows:
   - `(...)`: Putting the parentheses prevents pollution of your shell with the variables defined in

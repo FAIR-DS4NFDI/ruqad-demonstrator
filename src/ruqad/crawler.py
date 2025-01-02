@@ -83,6 +83,7 @@ def trigger_crawler(target_dir: str) -> tuple[bool, list[db.Entity]]:
 
     print("crawl", target_dir)
     crawler_main(crawled_directory_path=target_dir,
+                 debug=True,
                  cfood_file_name=ruqad_crawler_settings.joinpath('cfood.yaml'),
                  identifiables_definition_file=ruqad_crawler_settings.joinpath(
                      'identifiables.yaml'),
