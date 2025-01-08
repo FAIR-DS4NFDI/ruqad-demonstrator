@@ -13,6 +13,7 @@ venv
 
 # configurations
 qualitycheck_config.toml
+pylinkahead.ini
 
 # build artifacts
 *.egg-info

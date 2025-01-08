@@ -9,6 +9,13 @@ the data, stores the results in a [LinkAhead](https://getlinkahead.com) instance
 
 ## Usage
 
+### Virtual Environment (Optional)
+
+Before installing create a virtual environment:
+
+* `python -m venv .venv`
+* `source .venv/bin/activate`
+
 ### Installation ###
 
 Simply install with:
