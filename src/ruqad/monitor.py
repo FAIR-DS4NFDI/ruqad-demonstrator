@@ -42,6 +42,7 @@ KADIARGS = {
 
 SKIP_QUALITY_CHECK = os.getenv("SKIP_QUALITY_CHECK") is not None
 
+
 def monitor():
     """Continuously monitor the Kadi instance given in the environment variables.
 
@@ -82,7 +83,7 @@ def monitor():
                         if os.path.exists(os.path.join(cdir, "artifacts.zip")):
                             shutil.move(os.path.join(cdir, "artifacts.zip"),
                                         os.path.join(remote_dir_path, "report.zip"))
-                        #else:
+                        # else:
                         #    Path(os.path.join(remote_dir_path, "report.zip")).touch()
                         shutil.move(os.path.join(cdir, "export.eln"),
                                     os.path.join(remote_dir_path, "export.eln"))
