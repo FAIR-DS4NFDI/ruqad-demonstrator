@@ -44,11 +44,12 @@ def _generate_pages(manager) -> dict:
                            + str(response['code']))
     n_pages = response["_pagination"]["total_pages"]
     for ii in range(n_pages):
-        query_params.update({"page": ii+1})
+        query_params.update({"page": ii + 1})
         yield manager.search.search_resources("record", **query_params).json()
 
 
-def collect_records_created_after(manager: KadiManager, cut_off_date: datetime.datetime) -> list(int):
+def collect_records_created_after(manager: KadiManager,
+                                  cut_off_date: datetime.datetime) -> list(int):
     """
     Iterates page-wise over the responses of the Kadi API until records are reached that are older
     than the given cut_off_date.
@@ -89,12 +90,14 @@ def download_eln_for(manager: KadiManager, rid: int, path: str) -> None:
     rec = manager.record(id=rid)
     rec.export(path=path, export_type='ro-crate')
 
+
 class KadiManager(_KadiManager):
     """Fix KadiManager to respect context root in url."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.host = f'{kwargs["host"]}/api/v1'
+
 
 def main():
     with KadiManager(instance='demo') as manager:
