@@ -24,7 +24,7 @@ classifiers = [
 requires-python = ">= 3.8"
 dependencies = [
              "linkahead",
-             "caoscrawler[rocrate] @ file:///home/tf/src/caosdb-crawler",
+             "caoscrawler[rocrate] @ git+https://gitlab.indiscale.com/caosdb/src/caosdb-crawler.git@96ae0ada880049eec7673637816b20360a0d63cf",
              "kadi-apy",
              "boto3>=1.35",
              "toml>=0.10",
