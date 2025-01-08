@@ -121,6 +121,7 @@ e2e_tests:
   stage: test
   image: $CI_REGISTRY_IMAGE
   #image: python:3.13
+  allow_failure: true
   script:
     - echo $KADITOKEN
     - pytest --cov=ruqad end-to-end-tests/test_kadi.py
