@@ -8,7 +8,7 @@ COPY ./pyproject.toml /ruqad/
 
 # static configuration
 COPY ./qualitycheck_config.toml /ruqad/
-COPY ./pylinkahead.ini /ruqad/
+COPY ./docker/pylinkahead.ini /ruqad/
 
 # Installing the package
 WORKDIR /ruqad/
