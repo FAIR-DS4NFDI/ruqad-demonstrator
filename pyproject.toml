@@ -47,6 +47,8 @@ test = [
     "tox",
     "pytest",
     "pytest-cov",
+    "guppy3",
+    "memory_profiler",
 ]
 all = [
     "ruqad[dev]",
