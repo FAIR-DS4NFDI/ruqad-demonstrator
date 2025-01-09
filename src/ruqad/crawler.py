@@ -87,6 +87,6 @@ def trigger_crawler(target_dir: str) -> tuple[bool, list[db.Entity]]:
                  cfood_file_name=ruqad_crawler_settings.joinpath('cfood.yaml'),
                  identifiables_definition_file=ruqad_crawler_settings.joinpath(
                      'identifiables.yaml'),
-                 remove_prefix="/"+os.path.basename(target_dir))
+                 remove_prefix="/" + os.path.basename(target_dir))
 
     return (True, ent_qc)
