@@ -1,21 +1,22 @@
 """
 Tests CPU and Memory usage of RuQaD
 """
-import cProfile, pstats, io
-from pstats import SortKey
-from time import sleep,time
-from tempfile import TemporaryDirectory
+import cProfile
+import io
+import os
+import pstats
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
+from pstats import SortKey
+from tempfile import TemporaryDirectory
+from time import sleep, time
 
-from memory_profiler import profile as mprofile
-
-from ruqad.qualitycheck import QualityChecker
-from ruqad.kadi import collect_records_created_after, download_eln_for, KadiManager
-from ruqad.crawler import trigger_crawler
-import os
-import shutil
 from memory_profiler import memory_usage
+from memory_profiler import profile as mprofile
+from ruqad.crawler import trigger_crawler
+from ruqad.kadi import KadiManager, collect_records_created_after, download_eln_for
+from ruqad.qualitycheck import QualityChecker
 
 SKIP_QUALITY_CHECK = os.getenv("SKIP_QUALITY_CHECK") is not None
 KADIARGS = {
@@ -69,14 +70,12 @@ def test_cpu():
     pr.enable()
     _run(n=1)
     pr.disable()
-    s = io.StringIO()
-    sortby = SortKey.CUMULATIVE
-    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-    ps.print_stats(10)
-    print(s.getvalue())
-    ps.print_stats("ruqad", 10)
-    ps.print_stats("crawler", 10)
-    print(s.getvalue())
+    with open("performance.txt", 'a') as s:
+        sortby = SortKey.CUMULATIVE
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats(10)
+        ps.print_stats("ruqad", 10)
+        ps.print_stats("crawler", 10)
 
 def test_runtime_eln_download():
     cut_off_date = datetime.fromisoformat("1990-01-01 02:34:42.484312+00:00")
@@ -91,7 +90,8 @@ def test_runtime_eln_download():
             download_eln_for(manager, rec_ids[0], path=eln_file)
             stop = time()
 
-    print(f"time for downloading eln: {stop-start:.2f} s")
+    with open("performance.txt", 'a') as s:
+        s.write(f"time for downloading eln: {stop-start:.2f} s")
 
 def test_runtime_crawler():
     cut_off_date = datetime.fromisoformat("1990-01-01 02:34:42.484312+00:00")
@@ -112,7 +112,8 @@ def test_runtime_crawler():
             trigger_crawler(target_dir=cdir)
             stop = time()
 
-    print(f"time for crawling eln: {stop-start:.2f} s")
+    with open("performance.txt", 'a') as s:
+        s.write(f"time for crawling eln: {stop-start:.2f} s")
 
 if __name__ == "__main__":
     test_memory()
