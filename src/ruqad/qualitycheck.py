@@ -119,7 +119,7 @@ out : bool
             self._download_result(job_id=job_id, target_dir=target_dir)
         except self.CheckFailed as cfe:
             print(f"Check failed:\nStatus: {cfe.reason['status']}")
-            breakpoint()
+            #breakpoint()
 
             check_ok = False
 
@@ -228,6 +228,10 @@ remove_prefix : Optional[str]
         while True:
             cmd_result = run(cmd, check=True, capture_output=True)
             result = json.loads(cmd_result.stdout)
+            if "error" in result:
+                print("Pipeline terminated unsuccessfully: ", result["error_description"])
+                result["status"] = result["error_description"]
+                raise self.CheckFailed(result)
             if result["status"] != "running" and result["finished_at"] is not None:
                 break
             time.sleep(1)

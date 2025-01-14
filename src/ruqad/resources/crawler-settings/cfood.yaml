@@ -151,10 +151,11 @@ DataDir:
                         name: (?P<name>.*)
                         dateCreated: (?P<dateCreated>.*)$
                         dateModified: (?P<dateModified>.*)$
+                        #description: (?P<description>.*)$
                       records:
                         Dataset:
                           name: $name
-                          description: $description
+                          #description: $description
                           dateModified: $dateModified
                           dateCreated: $dateCreated
 
